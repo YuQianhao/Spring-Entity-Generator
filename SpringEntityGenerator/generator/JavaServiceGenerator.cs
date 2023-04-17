@@ -38,7 +38,7 @@ namespace SpringEntityGenerator.generator
 
                 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
                 import ####PACKAGE_NAME####.entity.####CLASS_NAME####;
-                import ####PACKAGE_NAME####.mapper.TestMapper;
+                import ####PACKAGE_NAME####.mapper.####CLASS_NAME####Mapper;
                 import org.jetbrains.annotations.NotNull;
                 import org.springframework.stereotype.Service;
                 import java.util.Date;

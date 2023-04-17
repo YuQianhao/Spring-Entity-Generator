@@ -192,9 +192,9 @@ namespace SpringEntityGenerator.generator
                     if (onlyId.id == null) {
                         throw new RuntimeException("The object 'id' to be queried cannot be empty.");
                     }
-                    return this.onHandleGetAfter(testServiceTemplate.getById(onlyId.id));
+                    return this.onHandleGetAfter(####SERVICE_FIELD_NAME####.getById(onlyId.id));
                 }
-                """.Replace("####CLASS_NAME####",className));
+                """.Replace("####CLASS_NAME####",className).Replace("####SERVICE_FIELD_NAME####", classServiceFieldName));
             // ============================================
             // remove方法
             // ============================================
@@ -249,7 +249,7 @@ namespace SpringEntityGenerator.generator
                     var query=new LambdaQueryWrapper<####CLASS_NAME####>();
                     """.Replace("####CLASS_NAME####",className));
                 stream.Write(selectBody);
-                stream.Write("return onHandleSelectAfter(testServiceTemplate.page(new Page<>(select.page,select.pageSize),this.onHandleSelectBefore(query)));\n}\n");
+                stream.Write("return onHandleSelectAfter(####SERVICE_FIELD_NAME####.page(new Page<>(select.page,select.pageSize),this.onHandleSelectBefore(query)));\n}\n".Replace("####SERVICE_FIELD_NAME####", classServiceFieldName));
             }
             // =============================================
             // save方法
