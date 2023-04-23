@@ -88,10 +88,10 @@ namespace SpringEntityGenerator.generator
                 switch (column.IndexType)
                 {
                     case IndexTypes.Unique:
-                        indexSql.Append($"ALTER TABLE {tableName} ADD UNIQUE unique_{columnName} (`{columnName}`);");
+                        indexSql.Append($"ALTER TABLE {tableName} ADD UNIQUE {tableName.ToLower()}_unique_{columnName} (`{columnName}`);");
                         break;
                     case IndexTypes.Index:
-                        indexSql.Append($"ALTER TABLE {tableName} ADD INDEX index_{columnName} (`{columnName}`);");
+                        indexSql.Append($"ALTER TABLE {tableName} ADD INDEX {tableName.ToLower()}_index_{columnName} (`{columnName}`);");
                         break;
                 }
             }
