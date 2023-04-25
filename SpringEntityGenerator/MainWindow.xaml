@@ -59,7 +59,7 @@
                 <StackPanel DockPanel.Dock="Top">
                     <StackPanel Orientation="Horizontal" >
                         <Button Content="新建" Height="25" Padding="10,0,10,0" Name="ButtonNew" Click="ButtonNew_Click"></Button>
-                        <Button Content="打开" Margin="10,0,0,0" Height="25" Padding="10,0,10,0" Name="ButtonOpen"></Button>
+                        <Button Content="打开" Margin="10,0,0,0" Height="25" Padding="10,0,10,0" Name="ButtonOpen" Click="ButtonOpen_Click"></Button>
                         <Button Name="ButtonSave" Content="保存(ctrl+s)" Margin="10,0,0,0" Height="25" Padding="10,0,10,0" Click="ButtonSave_Click"></Button>
                         <Button Name="ButtonGenerator" Content="生成" Margin="10,0,0,0" Height="25" Padding="10,0,10,0" Click="ButtonGenerator_Click"></Button>
                     </StackPanel>

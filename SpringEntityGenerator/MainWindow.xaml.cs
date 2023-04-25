@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
 using SpringEntityGenerator.generator;
@@ -70,11 +71,17 @@ namespace SpringEntityGenerator
 
         private void ButtonSave_Click(object sender, RoutedEventArgs e)
         {
+            var project = GetProject();
+            if (project.Table.Name.Length == 0)
+            {
+                MessageBox.Show("请先设置表名。", "Spring Entity Generator", MessageBoxButton.OK,MessageBoxImage.Error);
+                return;
+            }
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
             folderBrowserDialog.Description = "选择文档存放路径";
             if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                File.WriteAllText(folderBrowserDialog.SelectedPath + "//" + GetProject().Table.Name + ".seg", Json.Serialize(GetProject()));
+                File.WriteAllText(folderBrowserDialog.SelectedPath + "//" + GetProject().Table.Name + ".seg", Json.Serialize(GetProject().Table));
                 MessageBox.Show("保存成功", "Spring Entity Generator", MessageBoxButton.OK);
             }
         }
@@ -244,7 +251,7 @@ namespace SpringEntityGenerator
 
         private void ButtonNew_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("确定要新建一个吗？新建将会清空当前的内容。", "", MessageBoxButton.YesNo, MessageBoxImage.Question) ==
+            if (MessageBox.Show("确定要新建一个吗？新建将会清空当前的内容。", "Spring Entity Generator", MessageBoxButton.YesNo, MessageBoxImage.Question) ==
                 MessageBoxResult.Yes)
             {
                 var project = Json.Deserialize<Project>(Json.Serialize(GetProject()));
@@ -265,6 +272,34 @@ namespace SpringEntityGenerator
                         }
                     };
                     ProjectConfigPanel.DataContext = project;
+                }
+            }
+        }
+
+        private void ButtonOpen_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("打开一个新的配置脚本将会丢失当前的工作进度。确定要打开新的吗？", "Spring Entity Generator", MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                OpenFileDialog openFileDialog=new OpenFileDialog
+                {
+                    Filter = "seg文件|*.seg",
+                    Multiselect = false,
+                    Title = "打开Spring Entity Generator文件"
+                };
+                if (openFileDialog.ShowDialog()==true)
+                {
+                    var project = Json.Deserialize<Project>(Json.Serialize(GetProject()));
+                    var table = Json.Deserialize<EntityTable>(File.ReadAllText(openFileDialog.FileName));
+                    if (table == null || project==null)
+                    {
+                        MessageBox.Show("打开失败。这个文件不是Spring Entity Generator的表结构配置文件。", "Spring Entity Generator", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        project.Table = table;
+                        ProjectConfigPanel.DataContext = project;
+                    }
                 }
             }
         }
