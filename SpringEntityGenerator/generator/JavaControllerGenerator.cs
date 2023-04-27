@@ -201,6 +201,9 @@ namespace SpringEntityGenerator.generator
             stream.Write("""
                             /* 重写这个方法可以处理remove接口在查询到要删除的对象，这个返回结果将会被传入数据库的删除方法。**/
                 protected ####CLASS_NAME#### onHandleRemoveBefore(####CLASS_NAME#### object) {
+                    if(object==null){
+                        throw new RuntimeException("要删除的对象不存在。");
+                    }
                     return object;
                 }
 
