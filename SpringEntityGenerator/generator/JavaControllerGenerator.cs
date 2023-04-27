@@ -121,16 +121,16 @@ namespace SpringEntityGenerator.generator
                         // 是否为空
                         if (field.AllowNull) continue;
                         saveMethodFieldCheck.Append(
-                            $"if(save.{field.Name}==null || save.{field.Name}.isEmpty()){{throw new RuntimeException(\"Field '{field.Name}' cannot be empty, but it is empty here.\");}}\n");
+                            $"if(save.{field.Name}==null || save.{field.Name}.isEmpty()){{throw new RuntimeException(\"字段 '{field.Name}' 不能是空的，但是在这里的参数却是空的。\");}}\n");
                         if (field.MinLength == field.MaxLength)
                         {
                             saveMethodFieldCheck.Append(
-                                $"else if(save.{field.Name}.length()!={field.MaxLength}){{throw new RuntimeException(\"Field '{field.Name}' requires that the length must be {field.MinLength}.\");}}\n");
+                                $"else if(save.{field.Name}.length()!={field.MaxLength}){{throw new RuntimeException(\"字段 '{field.Name}' 的最大长度不能和最小长度一致。这次请求参数中最小长度和最大长度都是 {field.MinLength}.\");}}\n");
                         }
                         else
                         {
                             saveMethodFieldCheck.Append(
-                                $"else if(save.{field.Name}.length()>{field.MaxLength} || save.{field.Name}.length()<{field.MinLength}){{throw new RuntimeException(\"The length of field '{field.Name}' does not meet the rules, and it cannot be less than {field.MinLength} and cannot be greater than {field.MaxLength}.\");}}\n");
+                                $"else if(save.{field.Name}.length()>{field.MaxLength} || save.{field.Name}.length()<{field.MinLength}){{throw new RuntimeException(\"字段 '{field.Name}' 的值不符合规则, 文本的最小长度不能小于 {field.MinLength} ，最大长度不能大于 {field.MaxLength}.\");}}\n");
                         }
                     }
                     else if (field.IsNumberType())
@@ -138,16 +138,16 @@ namespace SpringEntityGenerator.generator
                         // 是否为空
                         if (field.AllowNull) continue;
                         saveMethodFieldCheck.Append(
-                            $"if(save.{field.Name}==null){{throw new RuntimeException(\"Field '{field.Name}' cannot be empty, but it is empty here.\");}}\n");
+                            $"if(save.{field.Name}==null){{throw new RuntimeException(\"字段 '{field.Name}' 不能是空的，但是在这里的请求参数却是空的.\");}}\n");
                         if (field.MinValue.Equals(field.MaxValue))
                         {
                             saveMethodFieldCheck.Append(
-                                $"else if(save.{field.Name}!={field.MaxValue}){{throw new RuntimeException(\"Field '{field.Name}' requires that the value must be {field.MinValue}.\");}}\n");
+                                $"else if(save.{field.Name}!={field.MaxValue}){{throw new RuntimeException(\"字段 '{field.Name}' 得最大值和最小值结果不能是一样的，当前的最大值和最小值都是 {field.MinValue}.\");}}\n");
                         }
                         else
                         {
                             saveMethodFieldCheck.Append(
-                                $"else if(save.{field.Name}>{field.MaxValue} || save.{field.Name}<{field.MinValue}){{throw new RuntimeException(\"The value of field {field.Name} does not meet the rules, and it cannot be less than {field.MinValue} and cannot be greater than {field.MaxLength}.\");}}\n");
+                                $"else if(save.{field.Name}>{field.MaxValue} || save.{field.Name}<{field.MinValue}){{throw new RuntimeException(\"字段 {field.Name} 的值不符合规则, 这个字段的最小值不能小于 {field.MinValue} 也不能大于 {field.MaxLength}.\");}}\n");
                         }
                     }
                     else
@@ -155,7 +155,7 @@ namespace SpringEntityGenerator.generator
                         // 是否为空
                         if (field.AllowNull) continue;
                         saveMethodFieldCheck.Append(
-                            $"if(save.{field.Name}==null){{throw new RuntimeException(\"Field '{field.Name}' cannot be empty, but it is empty here.\");}}\n");
+                            $"if(save.{field.Name}==null){{throw new RuntimeException(\"字段 '{field.Name}' 的规则要求不能是空的，但是在这里收到的参数是空的。\");}}\n");
                     }
                 }
                 saveCallCreateBody.Append("save.");
@@ -190,7 +190,7 @@ namespace SpringEntityGenerator.generator
                 @PostMapping("getEntity")
                 public Object getEntity(@RequestBody OnlyId onlyId) {
                     if (onlyId.id == null) {
-                        throw new RuntimeException("The object 'id' to be queried cannot be empty.");
+                        throw new RuntimeException("要查询的对象'id'格式不正确，id通常为Integer类型的数据，并且不能是空的。");
                     }
                     return this.onHandleGetAfter(####SERVICE_FIELD_NAME####.getById(onlyId.id));
                 }
@@ -241,10 +241,10 @@ namespace SpringEntityGenerator.generator
                 stream.Write("\n@PostMapping(\"select\")\n    public Object select(@RequestBody Select select){\n");
                 stream.Write("""
                                 if(select.page==null || select.page<1){
-                        throw new RuntimeException("The 'page' field in a paginated query cannot be empty and cannot be less than 0.");
+                        throw new RuntimeException("字段'page'的值不能小于1，这个字段是Integer类型，在这里也不能是空的。");
                     }
                     if(select.pageSize==null || select.pageSize<1 || select.pageSize>20){
-                        throw new RuntimeException("The 'pageSize' field in a paginated query cannot be empty, less than 0 and greater than 20.");
+                        throw new RuntimeException("字段'pageSize'的值不能小于1，并且不能大于20，这个字段是Integer类型，在这里也不能是空的。");
                     }
                     var query=new LambdaQueryWrapper<####CLASS_NAME####>();
                     """.Replace("####CLASS_NAME####",className));
