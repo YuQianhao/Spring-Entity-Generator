@@ -183,8 +183,8 @@ namespace SpringEntityGenerator.generator
             // ============================================
             stream.Write("""
                             /* 重写这个方法可以处理查询接口查询到的对象，这个返回结果将会直接返回给发起请求的客户端。**/
-                protected Object onHandleGetAfter(####CLASS_NAME#### test) {
-                    return test;
+                protected Object onHandleGetAfter(####CLASS_NAME#### object) {
+                    return object;
                 }
 
                 @PostMapping("getEntity")
