@@ -95,11 +95,11 @@ namespace SpringEntityGenerator.generator
             // 增加Save方法
             // ===================================
             stream.Write($"\npublic {className} save({saveMultipleParamsText})" + "{\n");
-            stream.Write($$"""
+            stream.Write($"""
                 {className} object = getById({project.Table.Columns.Find(item => item.Key)?.Name});
-                if(id!=null && object==null){
+                if(id!=null && object==null){"{"} 
                     throw new RuntimeException("要修改的数据不存在。");
-                }
+                {"}"}
                 boolean needInsert=false;
                 if(object == null) {"{"} 
                 object=new {className}();
