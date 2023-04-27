@@ -174,7 +174,7 @@ namespace SpringEntityGenerator.generator
                 saveCallCreateBody.Remove(saveCallCreateBody.Length - 1, 1);
             }
             stream.Write("""
-                            private static class OnlyId{
+                            protected static class OnlyId{
                     public Integer id;
                 }
                 """);
@@ -229,7 +229,7 @@ namespace SpringEntityGenerator.generator
             if (project.Table.Columns.Find(item => item.Select) != null)
             {
                 selectClassFields.Append("public Integer page;\npublic Integer pageSize;\n");
-                stream.Write($"\nprivate static class Select {{\n{selectClassFields} \n}}\n");
+                stream.Write($"\nprotected static class Select {{\n{selectClassFields} \n}}\n");
                 stream.Write("""
                     /* 重写这个方法可以处理select接口在创建完查询条件之后的回调，这个返回结果将会被传入分页查询的方法。**/
                     protected LambdaQueryWrapper<####CLASS_NAME####> onHandleSelectBefore(LambdaQueryWrapper<####CLASS_NAME####> queryWrapper){
@@ -257,7 +257,7 @@ namespace SpringEntityGenerator.generator
             // =============================================
             // save方法
             // =============================================
-            stream.Write("\nprivate static class Save {\n" + saveClassFields + "\n}\n");
+            stream.Write("\nprotected static class Save {\n" + saveClassFields + "\n}\n");
             stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之前的回调，这个返回结果将会被传入数据库save方法。**/\nprotected {className} onHandleSaveBefore({className} entity){{\n return entity;\n}}\n");
             stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之后的回调，这个返回结果将会直接返回给发起请求的客户端。**/\nprotected Object onHandleSaveAfter({className} entity){{\n return entity;\n}}\n");
             stream.Write("\n@PostMapping(\"save\")\n public Object save(@RequestBody Save save){\n");
