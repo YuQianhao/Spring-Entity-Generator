@@ -59,6 +59,28 @@ namespace SpringEntityGenerator.Model
         /// </summary>
         public bool AutoBackup { get; set; } = true;
 
+        private string _pageFieldName="page";
+
+        /// <summary>
+        /// 分页页码字段
+        /// </summary>
+        public string PageFieldName
+        {
+            get => _pageFieldName;
+            set { _pageFieldName = value;OnPropertyChanged("_pageFieldName"); }
+        }
+
+        private string _pageSizeFieldName = "pageSize";
+
+        /// <summary>
+        /// 分页数据长度字段
+        /// </summary>
+        public string PageSizeFieldName
+        {
+            get => _pageSizeFieldName;
+            set { _pageSizeFieldName = value; OnPropertyChanged("_pageSizeFieldName"); }
+        }
+
         private string _documentPath="";
 
         /// <summary>

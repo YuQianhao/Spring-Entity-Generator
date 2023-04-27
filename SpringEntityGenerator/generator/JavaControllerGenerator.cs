@@ -50,7 +50,7 @@ namespace SpringEntityGenerator.generator
             );
             var classServiceFieldName = className.First().ToString().ToLower() + className[1..] + "ServiceTemplate";
             stream.Write("""
-                private final ####CLASS_NAME####ServiceTemplate ####CLASS_LOWER_NAME####;
+                protected final ####CLASS_NAME####ServiceTemplate ####CLASS_LOWER_NAME####;
 
                 public ####CLASS_NAME####ControllerTemplate(####CLASS_NAME####ServiceTemplate ####CLASS_LOWER_NAME####) {
                     this.####CLASS_LOWER_NAME#### = ####CLASS_LOWER_NAME####;
@@ -68,10 +68,10 @@ namespace SpringEntityGenerator.generator
             var selectBody=new StringBuilder();
             foreach (var field in project.Table.Columns)
             {
-                saveCallCreateBody.Append("save.");
+                saveCallCreateBody.Append("");
                 if (field.Key || field.SaveParameter)
                 {
-                    saveCallCreateBody.Append(field.Name);
+                    saveCallCreateBody.Append("save."+field.Name);
                 }
                 else
                 {
@@ -131,16 +131,16 @@ namespace SpringEntityGenerator.generator
                         // 是否为空
                         if (field.AllowNull) continue;
                         saveMethodFieldCheck.Append(
-                            $"if(save.{field.Name}==null || save.{field.Name}.isEmpty()){{throw new RuntimeException(\"字段 '{field.Name}' 不能是空的，但是在这里的参数却是空的。\");}}\n");
+                            $"if({field.Name}==null || {field.Name}.isEmpty()){{throw new RuntimeException(\"字段 '{field.Name}' 不能是空的，但是在这里的参数却是空的。\");}}\n");
                         if (field.MinLength == field.MaxLength)
                         {
                             saveMethodFieldCheck.Append(
-                                $"else if(save.{field.Name}.length()!={field.MaxLength}){{throw new RuntimeException(\"字段 '{field.Name}' 的最大长度不能和最小长度一致。这次请求参数中最小长度和最大长度都是 {field.MinLength}.\");}}\n");
+                                $"else if({field.Name}.length()!={field.MaxLength}){{throw new RuntimeException(\"字段 '{field.Name}' 的最大长度不能和最小长度一致。这次请求参数中最小长度和最大长度都是 {field.MinLength}.\");}}\n");
                         }
                         else
                         {
                             saveMethodFieldCheck.Append(
-                                $"else if(save.{field.Name}.length()>{field.MaxLength} || save.{field.Name}.length()<{field.MinLength}){{throw new RuntimeException(\"字段 '{field.Name}' 的值不符合规则, 文本的最小长度不能小于 {field.MinLength} ，最大长度不能大于 {field.MaxLength}.\");}}\n");
+                                $"else if({field.Name}.length()>{field.MaxLength} || {field.Name}.length()<{field.MinLength}){{throw new RuntimeException(\"字段 '{field.Name}' 的值不符合规则, 文本的最小长度不能小于 {field.MinLength} ，最大长度不能大于 {field.MaxLength}.\");}}\n");
                         }
                     }
                     else if (field.IsNumberType())
@@ -148,16 +148,16 @@ namespace SpringEntityGenerator.generator
                         // 是否为空
                         if (field.AllowNull) continue;
                         saveMethodFieldCheck.Append(
-                            $"if(save.{field.Name}==null){{throw new RuntimeException(\"字段 '{field.Name}' 不能是空的，但是在这里的请求参数却是空的.\");}}\n");
+                            $"if({field.Name}==null){{throw new RuntimeException(\"字段 '{field.Name}' 不能是空的，但是在这里的请求参数却是空的.\");}}\n");
                         if (field.MinValue.Equals(field.MaxValue))
                         {
                             saveMethodFieldCheck.Append(
-                                $"else if(save.{field.Name}!={field.MaxValue}){{throw new RuntimeException(\"字段 '{field.Name}' 得最大值和最小值结果不能是一样的，当前的最大值和最小值都是 {field.MinValue}.\");}}\n");
+                                $"else if({field.Name}!={field.MaxValue}){{throw new RuntimeException(\"字段 '{field.Name}' 得最大值和最小值结果不能是一样的，当前的最大值和最小值都是 {field.MinValue}.\");}}\n");
                         }
                         else
                         {
                             saveMethodFieldCheck.Append(
-                                $"else if(save.{field.Name}>{field.MaxValue} || save.{field.Name}<{field.MinValue}){{throw new RuntimeException(\"字段 {field.Name} 的值不符合规则, 这个字段的最小值不能小于 {field.MinValue} 也不能大于 {field.MaxLength}.\");}}\n");
+                                $"else if({field.Name}>{field.MaxValue} || {field.Name}<{field.MinValue}){{throw new RuntimeException(\"字段 {field.Name} 的值不符合规则, 这个字段的最小值不能小于 {field.MinValue} 也不能大于 {field.MaxLength}.\");}}\n");
                         }
                     }
                     else
@@ -165,7 +165,7 @@ namespace SpringEntityGenerator.generator
                         // 是否为空
                         if (field.AllowNull) continue;
                         saveMethodFieldCheck.Append(
-                            $"if(save.{field.Name}==null){{throw new RuntimeException(\"字段 '{field.Name}' 的规则要求不能是空的，但是在这里收到的参数是空的。\");}}\n");
+                            $"if({field.Name}==null){{throw new RuntimeException(\"字段 '{field.Name}' 的规则要求不能是空的，但是在这里收到的参数是空的。\");}}\n");
                     }
                 }
             }
@@ -228,7 +228,7 @@ namespace SpringEntityGenerator.generator
             // =============================================
             if (project.Table.Columns.Find(item => item.Select) != null)
             {
-                selectClassFields.Append("public Integer page;\npublic Integer pageSize;\n");
+                selectClassFields.Append($"public Integer {project.PageFieldName};\npublic Integer {project.PageSizeFieldName};\n");
                 stream.Write($"\nprotected static class Select {{\n{selectClassFields} \n}}\n");
                 stream.Write("""
                     /* 重写这个方法可以处理select接口在创建完查询条件之后的回调，这个返回结果将会被传入分页查询的方法。**/
@@ -243,25 +243,31 @@ namespace SpringEntityGenerator.generator
 
                 stream.Write("\n@PostMapping(\"select\")\n    public Object select(@RequestBody Select select){\n");
                 stream.Write("""
-                                if(select.page==null || select.page<1){
-                        throw new RuntimeException("字段'page'的值不能小于1，这个字段是Integer类型，在这里也不能是空的。");
+                                if(select.####PAGE_FIELD####==null || select.####PAGE_FIELD####<1){
+                        throw new RuntimeException("字段'####PAGE_FIELD####'的值不能小于1，这个字段是Integer类型，在这里也不能是空的。");
                     }
-                    if(select.pageSize==null || select.pageSize<1 || select.pageSize>20){
-                        throw new RuntimeException("字段'pageSize'的值不能小于1，并且不能大于20，这个字段是Integer类型，在这里也不能是空的。");
+                    if(select.####PAGE_SIZE_FIELD####==null || select.####PAGE_SIZE_FIELD####<1 || select.####PAGE_SIZE_FIELD####>20){
+                        throw new RuntimeException("字段'####PAGE_SIZE_FIELD####'的值不能小于1，并且不能大于20，这个字段是Integer类型，在这里也不能是空的。");
                     }
                     var query=new LambdaQueryWrapper<####CLASS_NAME####>();
-                    """.Replace("####CLASS_NAME####",className));
+                    """.Replace("####CLASS_NAME####", className)
+                    .Replace("####PAGE_FIELD####", project.PageFieldName)
+                    .Replace("####PAGE_SIZE_FIELD####", project.PageSizeFieldName));
                 stream.Write(selectBody);
-                stream.Write("return onHandleSelectAfter(####SERVICE_FIELD_NAME####.page(new Page<>(select.page,select.pageSize),this.onHandleSelectBefore(query)));\n}\n".Replace("####SERVICE_FIELD_NAME####", classServiceFieldName));
+                stream.Write("return onHandleSelectAfter(####SERVICE_FIELD_NAME####.page(new Page<>(select.####PAGE_FIELD####,select.####PAGE_SIZE_FIELD####),this.onHandleSelectBefore(query)));\n}\n"
+                    .Replace("####SERVICE_FIELD_NAME####", classServiceFieldName)
+                    .Replace("####PAGE_FIELD####", project.PageFieldName)
+                    .Replace("####PAGE_SIZE_FIELD####", project.PageSizeFieldName)
+                );
             }
             // =============================================
             // save方法
             // =============================================
-            stream.Write("\nprotected static class Save {\n" + saveClassFields + "\n}\n");
+            stream.Write("\nprotected static class Save {\n" + saveClassFields + "\npublic void checkLegality(){\n"+ saveMethodFieldCheck + "\n}\n}\n");
             stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之前的回调，这个返回结果将会被传入数据库save方法。**/\nprotected {className} onHandleSaveBefore({className} entity){{\n return entity;\n}}\n");
             stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之后的回调，这个返回结果将会直接返回给发起请求的客户端。**/\nprotected Object onHandleSaveAfter({className} entity){{\n return entity;\n}}\n");
             stream.Write("\n@PostMapping(\"save\")\n public Object save(@RequestBody Save save){\n");
-            stream.Write(saveMethodFieldCheck);
+            stream.Write("save.checkLegality();\n");
             stream.Write($"var object={classServiceFieldName}.create({saveCallCreateBody});\n");
             stream.Write($"return this.onHandleSaveAfter(this.{classServiceFieldName}.saveEntity(this.onHandleSaveBefore(object)));\n");
             stream.Write("\n}");

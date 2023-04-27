@@ -51,6 +51,10 @@
                     <TextBox VerticalContentAlignment="Center" Width="300" Text="{Binding PackageName}"></TextBox>
                     <Label Content="自动备份旧的文件："></Label>
                     <CheckBox IsChecked="{Binding AutoBackup}" VerticalContentAlignment="Center"></CheckBox>
+                    <Label Content="分页页码字段："></Label>
+                    <TextBox Text="{Binding PageFieldName}" Width="100" VerticalContentAlignment="Center"></TextBox>
+                    <Label Content="分页数据长度字段："></Label>
+                    <TextBox Text="{Binding PageSizeFieldName}" Width="100" VerticalContentAlignment="Center"></TextBox>
                 </StackPanel>
             </StackPanel>
         </GroupBox>
