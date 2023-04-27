@@ -68,6 +68,16 @@ namespace SpringEntityGenerator.generator
             var selectBody=new StringBuilder();
             foreach (var field in project.Table.Columns)
             {
+                saveCallCreateBody.Append("save.");
+                if (field.Key || field.SaveParameter)
+                {
+                    saveCallCreateBody.Append(field.Name);
+                }
+                else
+                {
+                    saveCallCreateBody.Append("null");
+                }
+                saveCallCreateBody.Append(",");
                 if (field.Select)
                 {
                     if (field.SelectRange)
@@ -158,16 +168,6 @@ namespace SpringEntityGenerator.generator
                             $"if(save.{field.Name}==null){{throw new RuntimeException(\"字段 '{field.Name}' 的规则要求不能是空的，但是在这里收到的参数是空的。\");}}\n");
                     }
                 }
-                saveCallCreateBody.Append("save.");
-                if (field.Key || field.SaveParameter)
-                {
-                    saveCallCreateBody.Append(field.Name);
-                }
-                else
-                {
-                    saveCallCreateBody.Append("null");
-                }
-                saveCallCreateBody.Append(",");
             }
             if (saveCallCreateBody.Length > 0)
             {
