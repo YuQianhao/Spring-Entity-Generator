@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SpringEntityGenerator"
         xmlns:model="clr-namespace:SpringEntityGenerator.Model"
         mc:Ignorable="d"
-        Title="SpringEntityGenerator" MinHeight="760" Height="740" Width="1300" SizeChanged="MainWindow_OnSizeChanged" Initialized="MainWindow_OnInitialized">
+        Title="SpringEntityGenerator" MinHeight="760" Height="841" Width="1300" SizeChanged="MainWindow_OnSizeChanged" Initialized="MainWindow_OnInitialized">
     <Window.Resources>
         <ObjectDataProvider x:Key="ColumnType" ObjectType="{x:Type model:ColumnTypes}" MethodName="GetValues">
             <ObjectDataProvider.MethodParameters>
@@ -23,42 +23,48 @@
         <DockPanel.DataContext>
             <model:Project></model:Project>
         </DockPanel.DataContext>
-        <GroupBox Header="公共配置" DockPanel.Dock="Top">
-            <StackPanel Margin="0,10,0,10">
-                <StackPanel Orientation="Horizontal" >
-                    <Label Content="项目路径："></Label>
-                    <Label Content="{Binding Path}" Width="300"></Label>
-                    <Button Content="选择项目" Padding="10,0,10,0" Name="ButtonOpenProject" Click="ButtonOpenProject_Click"></Button>
-                    <Label Content="数据库字典路径：" Margin="10,0,0,0"></Label>
-                    <Label Content="{Binding DocumentPath}" Width="300"></Label>
-                    <Button Content="选择路径" Padding="10,0,10,0" Name="ButtonSelectDocumentPath" Click="ButtonSelectDocumentPath_Click"></Button>
+        <StackPanel DockPanel.Dock="Top">
+            <GroupBox Header="全局项目、数据库设置" >
+                <StackPanel Margin="0,10,0,10">
+                    <StackPanel Orientation="Horizontal" >
+                        <Label Content="项目路径："></Label>
+                        <Label Content="{Binding Path}" Width="300"></Label>
+                        <Button Content="选择项目" Padding="10,0,10,0" Name="ButtonOpenProject" Click="ButtonOpenProject_Click"></Button>
+                        <Label Content="数据库字典路径：" Margin="10,0,0,0"></Label>
+                        <Label Content="{Binding DocumentPath}" Width="300"></Label>
+                        <Button Content="选择路径" Padding="10,0,10,0" Name="ButtonSelectDocumentPath" Click="ButtonSelectDocumentPath_Click"></Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <Label Content="MySql Config   Host："></Label>
+                        <TextBox Width="100" VerticalContentAlignment="Center" Text="{Binding MySql.Host}" ></TextBox>
+                        <Label Content="Port："></Label>
+                        <TextBox Width="100" VerticalContentAlignment="Center" Text="{Binding MySql.Port}" ></TextBox>
+                        <Label Content="User："></Label>
+                        <TextBox Width="100" Padding="10,0,10,0" Text="{Binding MySql.User}" VerticalContentAlignment="Center" ></TextBox>
+                        <Label Content="Password："></Label>
+                        <TextBox Width="100" Padding="10,0,10,0" Text="{Binding MySql.Password}" VerticalContentAlignment="Center" ></TextBox>
+                        <Label Content="数据库："></Label>
+                        <TextBox Width="100" Padding="10,0,10,0" VerticalContentAlignment="Center" Text="{Binding MySql.Databases}"></TextBox>
+                        <Button Margin="10,0,0,0" Content="测试连接" Padding="10,0,10,0" Name="ButtonTestMySql" Click="ButtonTestMySql_Click"></Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <Label Content="项目包名："></Label>
+                        <TextBox VerticalContentAlignment="Center" Width="300" Text="{Binding PackageName}"></TextBox>
+                        <Label Content="自动备份旧的文件："></Label>
+                        <CheckBox IsChecked="{Binding AutoBackup}" VerticalContentAlignment="Center"></CheckBox>
+                    </StackPanel>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                    <Label Content="MySql Config   Host："></Label>
-                    <TextBox Width="100" VerticalContentAlignment="Center" Text="{Binding MySql.Host}" ></TextBox>
-                    <Label Content="Port："></Label>
-                    <TextBox Width="100" VerticalContentAlignment="Center" Text="{Binding MySql.Port}" ></TextBox>
-                    <Label Content="User："></Label>
-                    <TextBox Width="100" Padding="10,0,10,0" Text="{Binding MySql.User}" VerticalContentAlignment="Center" ></TextBox>
-                    <Label Content="Password："></Label>
-                    <TextBox Width="100" Padding="10,0,10,0" Text="{Binding MySql.Password}" VerticalContentAlignment="Center" ></TextBox>
-                    <Label Content="数据库："></Label>
-                    <TextBox Width="100" Padding="10,0,10,0" VerticalContentAlignment="Center" Text="{Binding MySql.Databases}"></TextBox>
-                    <Button Margin="10,0,0,0" Content="测试连接" Padding="10,0,10,0" Name="ButtonTestMySql" Click="ButtonTestMySql_Click"></Button>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                    <Label Content="项目包名："></Label>
-                    <TextBox VerticalContentAlignment="Center" Width="300" Text="{Binding PackageName}"></TextBox>
-                    <Label Content="自动备份旧的文件："></Label>
-                    <CheckBox IsChecked="{Binding AutoBackup}" VerticalContentAlignment="Center"></CheckBox>
+            </GroupBox>
+            <GroupBox Header="全局生成设置" Margin="0,10,0,0">
+                <StackPanel Orientation="Horizontal" Margin="10">
                     <Label Content="分页页码字段："></Label>
                     <TextBox Text="{Binding PageFieldName}" Width="100" VerticalContentAlignment="Center"></TextBox>
                     <Label Content="分页数据长度字段："></Label>
                     <TextBox Text="{Binding PageSizeFieldName}" Width="100" VerticalContentAlignment="Center"></TextBox>
                 </StackPanel>
-            </StackPanel>
-        </GroupBox>
-        <GroupBox Header="Entity脚本" Margin="0,20,0,0" Name="GroupBoxTable">
+            </GroupBox>
+        </StackPanel>
+        <GroupBox Header="Entity脚本" Margin="0,10,0,0" Name="GroupBoxTable">
             <StackPanel Margin="0,10,0,10">
                 <StackPanel DockPanel.Dock="Top">
                     <StackPanel Orientation="Horizontal" >
@@ -66,6 +72,15 @@
                         <Button Content="打开" Margin="10,0,0,0" Height="25" Padding="10,0,10,0" Name="ButtonOpen" Click="ButtonOpen_Click"></Button>
                         <Button Name="ButtonSave" Content="保存(ctrl+s)" Margin="10,0,0,0" Height="25" Padding="10,0,10,0" Click="ButtonSave_Click"></Button>
                         <Button Name="ButtonGenerator" Content="生成" Margin="10,0,0,0" Height="25" Padding="10,0,10,0" Click="ButtonGenerator_Click"></Button>
+                        <ComboBox Margin="10,0,0,0" Name="ComboBoxGeneratorType">
+                            <ComboBoxItem IsSelected="True">全部生成</ComboBoxItem>
+                            <ComboBoxItem >仅生成数据库</ComboBoxItem>
+                            <ComboBoxItem >仅生成Java控制器</ComboBoxItem>
+                            <ComboBoxItem >仅生成JavaEntity</ComboBoxItem>
+                            <ComboBoxItem >仅生成JavaMapper</ComboBoxItem>
+                            <ComboBoxItem >仅生成JavaService</ComboBoxItem>
+                            <ComboBoxItem >仅生成Document</ComboBoxItem>
+                        </ComboBox>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                         <Label Content="Entity名称："></Label>
@@ -84,7 +99,7 @@
                               CanUserAddRows="True"
                               Margin="0,10,0,0" 
                               VerticalScrollBarVisibility="Auto" 
-                              Height="390" 
+                              Height="442" 
                               ColumnWidth="*"
                               ItemsSource="{Binding Table.Columns}"
                               GridLinesVisibility="None" 
