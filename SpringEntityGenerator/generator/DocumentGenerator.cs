@@ -45,7 +45,7 @@ namespace SpringEntityGenerator.generator
             header.CreateCell(3).SetCellValue("类型");
             header.CreateCell(4).SetCellValue("长度");
             header.CreateCell(5).SetCellValue("主键");
-            header.CreateCell(6).SetCellValue("自增");
+            header.CreateCell(6).SetCellValue("可空");
             header.CreateCell(7).SetCellValue("索引");
             header.CreateCell(8).SetCellValue("最小长度");
             header.CreateCell(9).SetCellValue("最大长度");
