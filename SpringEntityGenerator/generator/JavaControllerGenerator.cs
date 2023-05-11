@@ -226,11 +226,9 @@ namespace SpringEntityGenerator.generator
             // =============================================
             // select方法
             // =============================================
-            if (project.Table.Columns.Find(item => item.Select) != null)
-            {
-                selectClassFields.Append($"public Integer {project.PageFieldName};\npublic Integer {project.PageSizeFieldName};\n");
-                stream.Write($"\nprotected static class Select {{\n{selectClassFields} \n}}\n");
-                stream.Write("""
+            selectClassFields.Append($"public Integer {project.PageFieldName};\npublic Integer {project.PageSizeFieldName};\n");
+            stream.Write($"\nprotected static class Select {{\n{selectClassFields} \n}}\n");
+            stream.Write("""
                     /* 重写这个方法可以处理select接口在创建完查询条件之后的回调，这个返回结果将会被传入分页查询的方法。**/
                     protected LambdaQueryWrapper<####CLASS_NAME####> onHandleSelectBefore(LambdaQueryWrapper<####CLASS_NAME####> queryWrapper){
                      return queryWrapper;
@@ -241,8 +239,8 @@ namespace SpringEntityGenerator.generator
                     }
                     """.Replace("####CLASS_NAME####", className));
 
-                stream.Write("\n@PostMapping(\"select\")\n    public Object select(@RequestBody Select select){\n");
-                stream.Write("""
+            stream.Write("\n@PostMapping(\"select\")\n    public Object select(@RequestBody Select select){\n");
+            stream.Write("""
                                 if(select.####PAGE_FIELD####==null || select.####PAGE_FIELD####<1){
                         throw new RuntimeException("字段'####PAGE_FIELD####'的值不能小于1，这个字段是Integer类型，在这里也不能是空的。");
                     }
@@ -251,15 +249,14 @@ namespace SpringEntityGenerator.generator
                     }
                     var query=new LambdaQueryWrapper<####CLASS_NAME####>();
                     """.Replace("####CLASS_NAME####", className)
-                    .Replace("####PAGE_FIELD####", project.PageFieldName)
-                    .Replace("####PAGE_SIZE_FIELD####", project.PageSizeFieldName));
-                stream.Write(selectBody);
-                stream.Write("return onHandleSelectAfter(####SERVICE_FIELD_NAME####.page(new Page<>(select.####PAGE_FIELD####,select.####PAGE_SIZE_FIELD####),this.onHandleSelectBefore(query)));\n}\n"
-                    .Replace("####SERVICE_FIELD_NAME####", classServiceFieldName)
-                    .Replace("####PAGE_FIELD####", project.PageFieldName)
-                    .Replace("####PAGE_SIZE_FIELD####", project.PageSizeFieldName)
-                );
-            }
+                .Replace("####PAGE_FIELD####", project.PageFieldName)
+                .Replace("####PAGE_SIZE_FIELD####", project.PageSizeFieldName));
+            stream.Write(selectBody);
+            stream.Write("return onHandleSelectAfter(####SERVICE_FIELD_NAME####.page(new Page<>(select.####PAGE_FIELD####,select.####PAGE_SIZE_FIELD####),this.onHandleSelectBefore(query)));\n}\n"
+                .Replace("####SERVICE_FIELD_NAME####", classServiceFieldName)
+                .Replace("####PAGE_FIELD####", project.PageFieldName)
+                .Replace("####PAGE_SIZE_FIELD####", project.PageSizeFieldName)
+            );
             // =============================================
             // save方法
             // =============================================
