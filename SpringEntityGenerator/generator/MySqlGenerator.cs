@@ -119,7 +119,11 @@ namespace SpringEntityGenerator.generator
         /// <returns>执行后的返回值</returns>
         private object? ExecSingleCommand(string sql)
         {
-            return new MySqlCommand(sql, _mySqlConnection).ExecuteScalar();
+            if (!string.IsNullOrEmpty(sql))
+            {
+                return new MySqlCommand(sql, _mySqlConnection).ExecuteScalar();
+            }
+            return null;
         }
     }
 }
