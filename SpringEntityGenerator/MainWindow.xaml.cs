@@ -218,11 +218,11 @@ namespace SpringEntityGenerator
                         break;
                 }
                 // 写入本地临时文件
-                if (!Directory.Exists("/tmp"))
+                if (!Directory.Exists("./tmp"))
                 {
-                    Directory.CreateDirectory("/tmp");
+                    Directory.CreateDirectory("./tmp");
                 }
-                File.WriteAllText("/tmp/" + GetProject().Table.Name+$".{Guid.NewGuid().ToString()}" + ".seg", Json.Serialize(GetProject().Table));
+                File.WriteAllText("./tmp/" + GetProject().Table.Name+$".{Guid.NewGuid().ToString()}" + ".seg", Json.Serialize(GetProject().Table));
                 MessageBox.Show($"生成{generatorInfo}成功", "Spring Entity Generator", MessageBoxButton.OK);
             }
             catch (Exception error)

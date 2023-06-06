@@ -39,6 +39,9 @@ namespace SpringEntityGenerator.generator
                 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
                 import ####PACKAGE_NAME####.entity.####CLASS_NAME####;
                 import ####PACKAGE_NAME####.mapper.####CLASS_NAME####Mapper;
+                import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+                import java.util.List;
+                import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
                 import org.jetbrains.annotations.NotNull;
                 import org.springframework.stereotype.Service;
                 import java.util.Date;
@@ -135,6 +138,52 @@ namespace SpringEntityGenerator.generator
             var keyField = project.Table.Columns.Find(item => item.Key);
             stream.Write($"public void removeEntity(@NotNull {className} entity){{");
             stream.Write($"getBaseMapper().deleteById(entity.get{keyField?.Name.First().ToString().ToUpper()+ keyField?.Name[1..]}());\n}}");
+            // ===================================
+            // 生成可以容纳10个字段的查询、列表和数量方法
+            // ===================================
+            // 查询单个的方法
+            for (var i = 0; i < 10; i++)
+            {
+                stream.Write("\n");
+                // 参数列表
+                var functionParams = new StringBuilder();
+                // 条件列表
+                var conditionText = new StringBuilder();
+                for (var paramsSize = 0; paramsSize < i + 1; paramsSize++)
+                {
+                    var key = $"_{paramsSize + 1}_key";
+                    var value = $"_{paramsSize + 1}_value";
+                    functionParams.Append($"SFunction<{className}, ?> {key}, Object {value},");
+                    conditionText.Append($".eq({key}, {value})");
+                }
+                if (functionParams.Length > 0)
+                {
+                    functionParams.Remove(functionParams.Length - 1,1);
+                }
+                stream.Write("""
+                                    public ####CLASSNAME#### getOneEqual(####PARAMS####) {
+                        return getOne(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
+                    }
+                    """.Replace("####PARAMS####", functionParams.ToString())
+                    .Replace("####CLASSNAME####", className)
+                    .Replace("####CONDITION####", conditionText.ToString()));
+                stream.Write("\n");
+                stream.Write("""
+                                    public List<####CLASSNAME####> listEqual(####PARAMS####) {
+                        return getBaseMapper().selectList(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
+                    }
+                    """.Replace("####PARAMS####", functionParams.ToString())
+                    .Replace("####CLASSNAME####", className)
+                    .Replace("####CONDITION####", conditionText.ToString()));
+                stream.Write("\n");
+                stream.Write("""
+                                    public Long getCountEqual(####PARAMS####) {
+                        return getBaseMapper().selectCount(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
+                    }
+                    """.Replace("####PARAMS####", functionParams.ToString())
+                    .Replace("####CLASSNAME####", className)
+                    .Replace("####CONDITION####", conditionText.ToString()));
+            }
             stream.Write("}");
             stream.Close();
         }
