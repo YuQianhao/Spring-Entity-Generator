@@ -157,7 +157,7 @@ namespace SpringEntityGenerator.generator
                         else
                         {
                             saveMethodFieldCheck.Append(
-                                $"else if({field.Name}>{field.MaxValue} || {field.Name}<{field.MinValue}){{throw new RuntimeException(\"字段 {field.Name} 的值不符合规则, 这个字段的最小值不能小于 {field.MinValue} 也不能大于 {field.MaxLength}.\");}}\n");
+                                $"else if({field.Name}>{field.MaxValue} || {field.Name}<{field.MinValue}){{throw new RuntimeException(\"字段 {field.Name} 的值不符合规则, 这个字段的不能小于 {field.MinValue} 也不能大于 {field.MaxValue}.\");}}\n");
                         }
                     }
                     else
