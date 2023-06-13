@@ -41,6 +41,7 @@ namespace SpringEntityGenerator.generator
                 import ####PACKAGE_NAME####.mapper.####CLASS_NAME####Mapper;
                 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
                 import java.util.List;
+                import java.lang.RuntimeException;
                 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
                 import org.jetbrains.annotations.NotNull;
                 import org.springframework.stereotype.Service;
@@ -139,10 +140,10 @@ namespace SpringEntityGenerator.generator
             stream.Write($"public void removeEntity(@NotNull {className} entity){{");
             stream.Write($"getBaseMapper().deleteById(entity.get{keyField?.Name.First().ToString().ToUpper()+ keyField?.Name[1..]}());\n}}");
             // ===================================
-            // 生成可以容纳10个字段的查询、列表和数量方法
+            // 生成可以容纳5个字段的查询、列表和数量方法
             // ===================================
             // 查询单个的方法
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < 5; i++)
             {
                 stream.Write("\n");
                 // 参数列表
@@ -160,6 +161,7 @@ namespace SpringEntityGenerator.generator
                 {
                     functionParams.Remove(functionParams.Length - 1,1);
                 }
+                // getOneEqual方法
                 stream.Write("""
                                     public ####CLASSNAME#### getOneEqual(####PARAMS####) {
                         return getOne(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
@@ -168,6 +170,29 @@ namespace SpringEntityGenerator.generator
                     .Replace("####CLASSNAME####", className)
                     .Replace("####CONDITION####", conditionText.ToString()));
                 stream.Write("\n");
+                // getOneEqualNotNull方法
+                stream.Write("""
+                                    public ####CLASSNAME#### getOneEqualNotNull(####PARAMS####) {
+                        var _value=getOne(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
+                        if(_value==null){
+                            throw new RuntimeException("要查询的值不存在。");
+                        }
+                        return _value;
+                    }
+                    """.Replace("####PARAMS####", functionParams.ToString())
+                    .Replace("####CLASSNAME####", className)
+                    .Replace("####CONDITION####", conditionText.ToString()));
+                stream.Write("\n");
+                // remove
+                stream.Write("""
+                                    public List<####CLASSNAME####> removeEqual(####PARAMS####) {
+                        return getBaseMapper().delete(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
+                    }
+                    """.Replace("####PARAMS####", functionParams.ToString())
+                    .Replace("####CLASSNAME####", className)
+                    .Replace("####CONDITION####", conditionText.ToString()));
+                stream.Write("\n");
+                // listEqual
                 stream.Write("""
                                     public List<####CLASSNAME####> listEqual(####PARAMS####) {
                         return getBaseMapper().selectList(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
@@ -176,6 +201,7 @@ namespace SpringEntityGenerator.generator
                     .Replace("####CLASSNAME####", className)
                     .Replace("####CONDITION####", conditionText.ToString()));
                 stream.Write("\n");
+                // getCountEqual
                 stream.Write("""
                                     public Long getCountEqual(####PARAMS####) {
                         return getBaseMapper().selectCount(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
