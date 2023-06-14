@@ -185,7 +185,7 @@ namespace SpringEntityGenerator.generator
                 stream.Write("\n");
                 // remove
                 stream.Write("""
-                                    public List<####CLASSNAME####> removeEqual(####PARAMS####) {
+                                    public int removeEqual(####PARAMS####) {
                         return getBaseMapper().delete(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
                     }
                     """.Replace("####PARAMS####", functionParams.ToString())
