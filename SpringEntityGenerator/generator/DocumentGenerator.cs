@@ -77,7 +77,7 @@ namespace SpringEntityGenerator.generator
                 columnRow.CreateCell(13).SetCellValue(tableColumn.SelectEqual ? "√" : "");
                 columnRow.CreateCell(14).SetCellValue(tableColumn.SelectRange ? "√" : "");
                 columnRow.CreateCell(15).SetCellValue(tableColumn.SaveParameter ? "√" : "");
-                columnRow.CreateCell(16).SetCellValue(tableColumn.Comment);
+                columnRow.CreateCell(16).SetCellValue(string.IsNullOrEmpty(tableColumn.Comment)?tableColumn.CnName: tableColumn.Comment);
             }
             workbook.Write(new FileStream(documentPath, FileMode.Create));
             workbook.Close();
