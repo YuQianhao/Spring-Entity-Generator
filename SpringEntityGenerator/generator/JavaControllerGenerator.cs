@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -268,6 +269,94 @@ namespace SpringEntityGenerator.generator
             stream.Write($"var object={classServiceFieldName}.create({saveCallCreateBody});\n");
             stream.Write($"return this.onHandleSaveAfter(this.{classServiceFieldName}.saveEntity(this.onHandleSaveBefore(object)));\n");
             stream.Write("\n}");
+            // ==============================================
+            // 除主键id以外的字段修改方法
+            // ==============================================
+            foreach (var field in project.Table.Columns)
+            {
+                if (field.Name.Equals("id") || !field.AllowSetField)
+                {
+                    // ID字段和不允许修改字段的属性不创建修改方法
+                    continue;
+                }
+
+                if (field.Name.Length == 0)
+                {
+                    continue;
+                }
+                // 首字母大写的字段名
+                var uppercaseFieldName = field.Name[..1].ToUpper() + field.Name[1..];
+                // 值检查，值的字段名为##FIELD_NAME##
+                var checkValueText = new StringBuilder();
+                // 检查是否为null
+                if (!field.AllowNull)
+                {
+                    checkValueText.Append("if(##FIELD_NAME##==null){throw new RuntimeException(\"要修改的值不能是空的。\");}\n".Replace("##FIELD_NAME##",field.Name));
+                }
+                // 检查是否是字符串并且检查字符串允许的长度
+                if (field.IsTextType())
+                {
+                    checkValueText.Append("if(##FIELD_NAME##.length() < ##MIN_LENGTH## || ##FIELD_NAME##.length() > ##MAX_LENGTH##){throw new RuntimeException(\"这个字段的内容长度格式不正确，内容长度不能小于##MIN_LENGTH##位，不能大于##MAX_LENGTH##位。\");}\n"
+                                              .Replace("##FIELD_NAME##", field.Name)
+                                              .Replace("##MIN_LENGTH##",field.MinLength.ToString())
+                                              .Replace("##MAX_LENGTH##", field.MaxLength.ToString())
+                                          );
+                }
+                // 检查数字的限制
+                if (field.IsNumberType())
+                {
+                    checkValueText.Append("if(##FIELD_NAME## < ##MIN_VALUE## || ##FIELD_NAME## > ##MAX_VALUE##){throw new RuntimeException(\"这个字段的值不正确，值不能小于##MIN_VALUE##，不能大于##MAX_VALUE##。\");}\n"
+                                              .Replace("##FIELD_NAME##", field.Name)
+                                              .Replace("##MIN_VALUE##", field.MinValue.ToString(CultureInfo.InvariantCulture))
+                                              .Replace("##MAX_VALUE##", field.MaxValue.ToString(CultureInfo.InvariantCulture))
+                    );
+                }
+                // 创建属性修改参数
+                var scriptText = new StringBuilder();
+                scriptText.Append("""
+                    protected static class Set##UPPERCASE_FIELD_NAME##{
+
+                        // 主键id
+                        public Integer id;
+
+                        // ##COMMENT##
+                        public ##TYPE## ##FIELD_NAME##;
+                    }
+
+                    protected ##CLASS_NAME## onHandleSet##UPPERCASE_FIELD_NAME##Before(##CLASS_NAME## entity,##TYPE## ##FIELD_NAME##)
+                    {
+                        // 检查值是否符合规则
+                        ##CHECK_TEXT##
+                        // 直接调用相应的set方法
+                        entity.set##UPPERCASE_FIELD_NAME##(##FIELD_NAME##);
+                        return entity;
+                    }
+
+                    protected ##CLASS_NAME## onHandleSet##UPPERCASE_FIELD_NAME##After(##CLASS_NAME## entity)
+                    {
+                        return entity;
+                    }
+
+                    @PostMapping("set##UPPERCASE_FIELD_NAME##")
+                    public Object set##UPPERCASE_FIELD_NAME##(@RequestBody Set##UPPERCASE_FIELD_NAME## _newValue)
+                    {
+                        var entity=##SERVICE_NAME##.getEntityById(_newValue.id);
+                        if(entity==null){throw new RuntimeException("要修改的数据对象不存在。");}
+                        entity=onHandleSet##UPPERCASE_FIELD_NAME##Before(entity,_newValue.##FIELD_NAME##);
+                        ##SERVICE_NAME##.saveEntity(entity);
+                        return onHandleSet##UPPERCASE_FIELD_NAME##After(entity);
+                    }
+                    """
+                    .Replace("##UPPERCASE_FIELD_NAME##", uppercaseFieldName)
+                    .Replace("##TYPE##",field.ToJavaType())
+                    .Replace("##FIELD_NAME##", field.Name)
+                    .Replace("##CLASS_NAME##", className)
+                    .Replace("##SERVICE_NAME##", classServiceFieldName)
+                    .Replace("##COMMENT##", field.Name+","+field.Comment)
+                    .Replace("##CHECK_TEXT##",checkValueText.ToString())
+                );
+                stream.Write(scriptText.ToString());
+            }
             stream.Write("\n}");
             stream.Close();
         }

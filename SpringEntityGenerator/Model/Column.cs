@@ -96,6 +96,11 @@ namespace SpringEntityGenerator.Model
         /// </summary>
         public bool SaveParameter { get; set; } = true;
 
+        /// <summary>
+        /// 是否允许单独修改字段
+        /// </summary>
+        public bool AllowSetField { get; set; } = true;
+
 
         /// <summary>
         /// 字段注释。可空，默认为字段中文名

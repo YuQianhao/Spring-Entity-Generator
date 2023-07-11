@@ -61,7 +61,8 @@ namespace SpringEntityGenerator
                         Key = true,
                         AutoIncrease = true,
                         CnName = "主键ID",
-                        Comment = "主键ID"
+                        Comment = "主键ID",
+                        AllowSetField = false
                     }
                 }
                 }
@@ -318,7 +319,8 @@ namespace SpringEntityGenerator
                                 Key = true,
                                 AutoIncrease = true,
                                 CnName = "主键ID",
-                                Comment = "主键ID"
+                                Comment = "主键ID",
+                                AllowSetField = false
                             }
                         }
                     };
