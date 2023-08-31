@@ -135,8 +135,12 @@ namespace SpringEntityGenerator.generator
                             $"if({field.Name}==null || {field.Name}.isEmpty()){{throw new RuntimeException(\"字段 '{field.Name}' 不能是空的，但是在这里的参数却是空的。\");}}\n");
                         if (field.MinLength == field.MaxLength)
                         {
-                            saveMethodFieldCheck.Append(
-                                $"else if({field.Name}.length()!={field.MaxLength}){{throw new RuntimeException(\"字段 '{field.Name}' 的最大长度不能和最小长度一致。这次请求参数中最小长度和最大长度都是 {field.MinLength}.\");}}\n");
+                            // 字段大小长度相等，并且不是0，表示这个长度是固定值
+                            if (field.MaxLength != 0)
+                            {
+                                saveMethodFieldCheck.Append(
+                                    $"else if({field.Name}.length()!={field.MaxLength}){{throw new RuntimeException(\"字段 '{field.Name}' 的最大长度不能和最小长度一致。这次请求参数中最小长度和最大长度都是 {field.MinLength}.\");}}\n");
+                            }
                         }
                         else
                         {
@@ -150,10 +154,15 @@ namespace SpringEntityGenerator.generator
                         if (field.AllowNull) continue;
                         saveMethodFieldCheck.Append(
                             $"if({field.Name}==null){{throw new RuntimeException(\"字段 '{field.Name}' 不能是空的，但是在这里的请求参数却是空的.\");}}\n");
+
                         if (field.MinValue.Equals(field.MaxValue))
                         {
-                            saveMethodFieldCheck.Append(
-                                $"else if({field.Name}!={field.MaxValue}){{throw new RuntimeException(\"字段 '{field.Name}' 得最大值和最小值结果不能是一样的，当前的最大值和最小值都是 {field.MinValue}.\");}}\n");
+                            // 字段最小值和最大值相等，并且不是0，表示这个值是固定值
+                            if (field.MaxValue != 0)
+                            {
+                                saveMethodFieldCheck.Append(
+                                    $"else if({field.Name}!={field.MaxValue}){{throw new RuntimeException(\"字段 '{field.Name}' 得最大值和最小值结果不能是一样的，当前的最大值和最小值都是 {field.MinValue}.\");}}\n");
+                            }
                         }
                         else
                         {
