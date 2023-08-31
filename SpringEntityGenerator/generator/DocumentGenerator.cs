@@ -54,6 +54,7 @@ namespace SpringEntityGenerator.generator
             header.CreateCell(12).SetCellValue("select接口");
             header.CreateCell(13).SetCellValue("select相等匹配");
             header.CreateCell(14).SetCellValue("select范围匹配");
+            header.CreateCell(14).SetCellValue("select文本模糊匹配");
             header.CreateCell(15).SetCellValue("save接口支持");
             header.CreateCell(16).SetCellValue("说明");
             var index = 0;
@@ -76,6 +77,7 @@ namespace SpringEntityGenerator.generator
                 columnRow.CreateCell(12).SetCellValue(tableColumn.Select ? "√" : "");
                 columnRow.CreateCell(13).SetCellValue(tableColumn.SelectEqual ? "√" : "");
                 columnRow.CreateCell(14).SetCellValue(tableColumn.SelectRange ? "√" : "");
+                columnRow.CreateCell(14).SetCellValue(tableColumn.SelectTextLike ? "√" : "");
                 columnRow.CreateCell(15).SetCellValue(tableColumn.SaveParameter ? "√" : "");
                 columnRow.CreateCell(16).SetCellValue(string.IsNullOrEmpty(tableColumn.Comment)?tableColumn.CnName: tableColumn.Comment);
             }
