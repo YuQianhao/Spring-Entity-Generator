@@ -92,6 +92,11 @@ namespace SpringEntityGenerator.Model
         public bool SelectRange { get; set; } = false;
 
         /// <summary>
+        /// 用于查询条件时，对于文本条件，是否使用“like”模糊搜索
+        /// </summary>
+        public bool SelectTextLike { get; set; } = false;
+
+        /// <summary>
         /// 是否添加到save方法中。
         /// </summary>
         public bool SaveParameter { get; set; } = true;

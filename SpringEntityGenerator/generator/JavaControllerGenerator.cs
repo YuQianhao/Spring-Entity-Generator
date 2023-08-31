@@ -13,9 +13,13 @@ namespace SpringEntityGenerator.generator
     {
         public override void Generator(Project project)
         {
+            // controller文件的写出路径
             var filePath = project.Path + "\\src\\main\\java\\" + project.PackageName.Replace(".", "\\") + "\\controller\\";
+            // 类名
             var className = $"{project.Table.Name.First().ToString().ToUpper() + project.Table.Name[1..]}";
+            // 使用的mapper名称
             var mapperName = $"{className}ControllerTemplate.java";
+
             // 检查是否需要备份
             if (File.Exists(filePath + mapperName))
             {
@@ -25,11 +29,13 @@ namespace SpringEntityGenerator.generator
                 }
                 File.Delete(filePath + mapperName);
             }
+
             // 检查目录是否存在
             if (!Directory.Exists(filePath))
             {
                 Directory.CreateDirectory(filePath);
             }
+
             // 创建Mapper文件
             // 新建Java文件
             var stream = new StreamWriter(File.Create(filePath + mapperName));
@@ -95,7 +101,14 @@ namespace SpringEntityGenerator.generator
                         if (field.IsTextType())
                         {
                             selectBody.Append($"if(select.{field.Name}!=null && !select.{field.Name}.isEmpty()){{\n");
-                            selectBody.Append($"query.eq({className}::get{field.Name.First().ToString().ToUpper() + field.Name[1..]},select.{field.Name});\n}}\n");
+                            if (field.SelectTextLike)
+                            {
+                                selectBody.Append($"query.like({className}::get{field.Name.First().ToString().ToUpper() + field.Name[1..]},select.{field.Name});\n}}\n");
+                            }
+                            else
+                            {
+                                selectBody.Append($"query.eq({className}::get{field.Name.First().ToString().ToUpper() + field.Name[1..]},select.{field.Name});\n}}\n");
+                            }
                         }
                         else
                         {
