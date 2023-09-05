@@ -333,6 +333,28 @@ namespace SpringEntityGenerator.generator
                                               .Replace("##MAX_VALUE##", field.MaxValue.ToString(CultureInfo.InvariantCulture))
                     );
                 }
+
+                // 创建通过“Save”创建实例函数
+                var createWithSave = new StringBuilder();
+                createWithSave.Append("""
+
+                    public ##CLASS_NAME## createWithSave(Save save)
+                    {
+                    
+                        
+                        save.checkLegality();
+                        return ##SERVICE_NAME##.create(##CREATE_PARAMS##);
+                    }
+
+                    """
+                    .Replace("##SERVICE_NAME##",classServiceFieldName)
+                    .Replace("##CREATE_PARAMS##", saveCallCreateBody.ToString())
+                    .Replace("##CLASS_NAME##", className)
+                );
+
+
+                stream.Write(createWithSave.ToString());
+
                 // 创建属性修改参数
                 var scriptText = new StringBuilder();
                 scriptText.Append("""
