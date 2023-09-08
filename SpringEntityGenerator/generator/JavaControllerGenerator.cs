@@ -52,17 +52,10 @@ namespace SpringEntityGenerator.generator
                 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
                 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
-                public class ####CLASS_NAME####ControllerTemplate extends BaseController {
+                public class ####CLASS_NAME####ControllerTemplate extends ####CLASS_NAME####ServiceTemplate {
                 """.Replace("####CLASS_NAME####", className).Replace("####PACKAGE_NAME####", project.PackageName)
             );
-            var classServiceFieldName = className.First().ToString().ToLower() + className[1..] + "ServiceTemplate";
-            stream.Write("""
-                protected final ####CLASS_NAME####ServiceTemplate ####CLASS_LOWER_NAME####;
-
-                public ####CLASS_NAME####ControllerTemplate(####CLASS_NAME####ServiceTemplate ####CLASS_LOWER_NAME####) {
-                    this.####CLASS_LOWER_NAME#### = ####CLASS_LOWER_NAME####;
-                }
-                """.Replace("####CLASS_LOWER_NAME####", classServiceFieldName).Replace("####CLASS_NAME####", className));
+            
             // Save类的字段
             var saveClassFields = new StringBuilder();
             // save方法的字段检查
@@ -215,9 +208,9 @@ namespace SpringEntityGenerator.generator
                     if (onlyId.id == null) {
                         throw new RuntimeException("要查询的对象'id'格式不正确，id通常为Integer类型的数据，并且不能是空的。");
                     }
-                    return this.onHandleGetAfter(####SERVICE_FIELD_NAME####.getById(onlyId.id));
+                    return this.onHandleGetAfter(getById(onlyId.id));
                 }
-                """.Replace("####CLASS_NAME####",className).Replace("####SERVICE_FIELD_NAME####", classServiceFieldName));
+                """.Replace("####CLASS_NAME####",className));
             // ============================================
             // remove方法
             // ============================================
@@ -241,11 +234,11 @@ namespace SpringEntityGenerator.generator
                     if(onlyId.id==null){
                         throw new RuntimeException("The object 'id' to be deleted cannot be empty.");
                     }
-                    var object=####SERVICE_NAME####.getById(onlyId.id);
-                    ####SERVICE_NAME####.removeById(this.onHandleRemoveBefore(object).getId());
+                    var object=getById(onlyId.id);
+                    removeById(this.onHandleRemoveBefore(object).getId());
                     return this.onHandleRemoveAfter();
                 }
-                """.Replace("####SERVICE_NAME####",classServiceFieldName));
+                """);
             // =============================================
             // select方法
             // =============================================
@@ -275,8 +268,7 @@ namespace SpringEntityGenerator.generator
                 .Replace("####PAGE_FIELD####", project.PageFieldName)
                 .Replace("####PAGE_SIZE_FIELD####", project.PageSizeFieldName));
             stream.Write(selectBody);
-            stream.Write("return onHandleSelectAfter(####SERVICE_FIELD_NAME####.page(new Page<>(select.####PAGE_FIELD####,select.####PAGE_SIZE_FIELD####),this.onHandleSelectBefore(query)));\n}\n"
-                .Replace("####SERVICE_FIELD_NAME####", classServiceFieldName)
+            stream.Write("return onHandleSelectAfter(page(new Page<>(select.####PAGE_FIELD####,select.####PAGE_SIZE_FIELD####),this.onHandleSelectBefore(query)));\n}\n"
                 .Replace("####PAGE_FIELD####", project.PageFieldName)
                 .Replace("####PAGE_SIZE_FIELD####", project.PageSizeFieldName)
             );
@@ -288,8 +280,8 @@ namespace SpringEntityGenerator.generator
             stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之后的回调，这个返回结果将会直接返回给发起请求的客户端。**/\nprotected Object onHandleSaveAfter({className} entity){{\n return entity;\n}}\n");
             stream.Write("\n@PostMapping(\"save\")\n public Object save(@RequestBody Save save){\n");
             stream.Write("save.checkLegality();\n");
-            stream.Write($"var object={classServiceFieldName}.create({saveCallCreateBody});\n");
-            stream.Write($"return this.onHandleSaveAfter(this.{classServiceFieldName}.saveEntity(this.onHandleSaveBefore(object)));\n");
+            stream.Write($"var object=create({saveCallCreateBody});\n");
+            stream.Write($"return this.onHandleSaveAfter(saveEntity(this.onHandleSaveBefore(object)));\n");
             stream.Write("\n}");
             // ==============================================
             // 除主键id以外的字段修改方法
@@ -363,10 +355,10 @@ namespace SpringEntityGenerator.generator
                     @PostMapping("set##UPPERCASE_FIELD_NAME##")
                     public Object set##UPPERCASE_FIELD_NAME##(@RequestBody Set##UPPERCASE_FIELD_NAME## _newValue)
                     {
-                        var entity=##SERVICE_NAME##.getEntityById(_newValue.id);
+                        var entity=getEntityById(_newValue.id);
                         if(entity==null){throw new RuntimeException("要修改的数据对象不存在。");}
                         entity=onHandleSet##UPPERCASE_FIELD_NAME##Before(entity,_newValue.##FIELD_NAME##);
-                        ##SERVICE_NAME##.saveEntity(entity);
+                        saveEntity(entity);
                         return onHandleSet##UPPERCASE_FIELD_NAME##After(entity);
                     }
                     """
@@ -374,7 +366,6 @@ namespace SpringEntityGenerator.generator
                     .Replace("##TYPE##",field.ToJavaType())
                     .Replace("##FIELD_NAME##", field.Name)
                     .Replace("##CLASS_NAME##", className)
-                    .Replace("##SERVICE_NAME##", classServiceFieldName)
                     .Replace("##COMMENT##", field.Name+","+field.Comment)
                     .Replace("##CHECK_TEXT##",checkValueText.ToString())
                 );
@@ -392,11 +383,10 @@ namespace SpringEntityGenerator.generator
                     
                         
                         save.checkLegality();
-                        return ##SERVICE_NAME##.create(##CREATE_PARAMS##);
+                        return create(##CREATE_PARAMS##);
                     }
 
                     """
-                .Replace("##SERVICE_NAME##", classServiceFieldName)
                 .Replace("##CREATE_PARAMS##", saveCallCreateBody.ToString())
                 .Replace("##CLASS_NAME##", className)
             );

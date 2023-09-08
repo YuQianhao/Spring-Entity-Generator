@@ -210,6 +210,15 @@ namespace SpringEntityGenerator.generator
                     .Replace("####CLASSNAME####", className)
                     .Replace("####CONDITION####", conditionText.ToString()));
             }
+            // ==============================================
+            //          生成创建lambda查询对象方法
+            // ==============================================
+            stream.Write("""
+
+                public LambdaQueryWrapper<####CLASS_NAME####> lambda(){
+                    return new LambdaQueryWrapper<####CLASS_NAME####>();
+                }
+                """.Replace("####CLASS_NAME####", className));
             stream.Write("}");
             stream.Close();
         }
