@@ -36,7 +36,6 @@ namespace SpringEntityGenerator.generator
             stream.Write("""
                 package ####PACKAGE_NAME####.service;
 
-                import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
                 import com.baomidou.mybatisplus.core.metadata.IPage;
                 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
                 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -227,7 +226,7 @@ namespace SpringEntityGenerator.generator
             // ==============================================
             stream.Write("""
 
-                public IPage<####CLASS_NAME####> page(Integer page, Integer pageSize, QueryWrapper<####CLASS_NAME####> queryWrapper){
+                public IPage<####CLASS_NAME####> page(Integer page, Integer pageSize, LambdaQueryWrapper<####CLASS_NAME####> queryWrapper){
                     if(page==null || page<0){
                         throw new RuntimeException("分页页码page格式不正确。");
                     }
