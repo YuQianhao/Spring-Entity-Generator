@@ -36,6 +36,9 @@ namespace SpringEntityGenerator.generator
             stream.Write("""
                 package ####PACKAGE_NAME####.service;
 
+                import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+                import com.baomidou.mybatisplus.core.metadata.IPage;
+                import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
                 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
                 import ####PACKAGE_NAME####.entity.####CLASS_NAME####;
                 import ####PACKAGE_NAME####.mapper.####CLASS_NAME####Mapper;
@@ -218,6 +221,35 @@ namespace SpringEntityGenerator.generator
                 public LambdaQueryWrapper<####CLASS_NAME####> lambda(){
                     return new LambdaQueryWrapper<####CLASS_NAME####>();
                 }
+                """.Replace("####CLASS_NAME####", className));
+            // ==============================================
+            //          生成创建page查询对象方法
+            // ==============================================
+            stream.Write("""
+
+                public IPage<####CLASS_NAME####> page(Integer page, Integer pageSize, QueryWrapper<####CLASS_NAME####> queryWrapper){
+                    if(page==null || page<0){
+                        throw new RuntimeException("分页页码page格式不正确。");
+                    }
+                    if(pageSize==null || pageSize<0){
+                        throw new RuntimeException("分页参数pageSize格式不正确。");
+                    }
+                    return page(new Page<>(page,pageSize),queryWrapper);
+                }
+
+                """.Replace("####CLASS_NAME####", className));
+            stream.Write("""
+
+                public IPage<####CLASS_NAME####> page(Integer page, Integer pageSize){
+                    if(page==null || page<0){
+                        throw new RuntimeException("分页页码page格式不正确。");
+                    }
+                    if(pageSize==null || pageSize<0){
+                        throw new RuntimeException("分页参数pageSize格式不正确。");
+                    }
+                    return page(new Page<>(page,pageSize));
+                }
+
                 """.Replace("####CLASS_NAME####", className));
             stream.Write("}");
             stream.Close();
