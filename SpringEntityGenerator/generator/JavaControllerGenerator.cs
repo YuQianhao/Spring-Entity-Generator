@@ -44,6 +44,7 @@ namespace SpringEntityGenerator.generator
                 package ####PACKAGE_NAME####.controller;
 
                 import java.util.Date;
+                import org.springframework.transaction.annotation.Transactional;
                 import ####PACKAGE_NAME####.entity.####CLASS_NAME####;
                 import org.springframework.web.bind.annotation.PostMapping;
                 import org.springframework.web.bind.annotation.RequestBody;
@@ -224,11 +225,12 @@ namespace SpringEntityGenerator.generator
                 }
 
                 /* 重写这个方法可以处理remove接口在删除之后的处理业务，这个返回结果将会直接返回给发起请求的客户端。**/
-                protected Object onHandleRemoveAfter() {
+                protected Object onHandleRemoveAfter(####CLASS_NAME#### object) {
                     return new Object();
                 }
                 """.Replace("####CLASS_NAME####",className));
             stream.Write("""
+                            @Transactional
                             @PostMapping("remove")
                 public Object remove(@RequestBody OnlyId onlyId){
                     if(onlyId.id==null){
@@ -236,7 +238,8 @@ namespace SpringEntityGenerator.generator
                     }
                     var object=getById(onlyId.id);
                     removeById(this.onHandleRemoveBefore(object).getId());
-                    return this.onHandleRemoveAfter();
+                    object.id=null;
+                    return this.onHandleRemoveAfter(object);
                 }
                 """);
             // =============================================
@@ -278,7 +281,7 @@ namespace SpringEntityGenerator.generator
             stream.Write("\nprotected static class Save {\n" + saveClassFields + "\npublic void checkLegality(){\n"+ saveMethodFieldCheck + "\n}\n}\n");
             stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之前的回调，这个返回结果将会被传入数据库save方法。**/\nprotected {className} onHandleSaveBefore({className} entity){{\n return entity;\n}}\n");
             stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之后的回调，这个返回结果将会直接返回给发起请求的客户端。**/\nprotected Object onHandleSaveAfter({className} entity){{\n return entity;\n}}\n");
-            stream.Write("\n@PostMapping(\"save\")\n public Object save(@RequestBody Save save){\n");
+            stream.Write("\n@Transactional\n@PostMapping(\"save\")\n public Object save(@RequestBody Save save){\n");
             stream.Write("save.checkLegality();\n");
             stream.Write($"var object=create({saveCallCreateBody});\n");
             stream.Write($"return this.onHandleSaveAfter(saveEntity(this.onHandleSaveBefore(object)));\n");
@@ -352,6 +355,7 @@ namespace SpringEntityGenerator.generator
                         return entity;
                     }
 
+                    @Transactional
                     @PostMapping("set##UPPERCASE_FIELD_NAME##")
                     public Object set##UPPERCASE_FIELD_NAME##(@RequestBody Set##UPPERCASE_FIELD_NAME## _newValue)
                     {
