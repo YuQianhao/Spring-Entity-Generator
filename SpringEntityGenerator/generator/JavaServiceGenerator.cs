@@ -48,6 +48,7 @@ namespace SpringEntityGenerator.generator
                 import org.jetbrains.annotations.NotNull;
                 import org.springframework.stereotype.Service;
                 import java.util.Date;
+                import java.util.function.Consumer;
 
                 @Service
                 public class ####CLASS_NAME####ServiceTemplate extends ServiceImpl<####CLASS_NAME####Mapper, ####CLASS_NAME####> {
@@ -247,6 +248,105 @@ namespace SpringEntityGenerator.generator
                         throw new RuntimeException("分页参数pageSize格式不正确。");
                     }
                     return page(new Page<>(page,pageSize));
+                }
+
+                """.Replace("####CLASS_NAME####", className));
+            // ==============================================
+            //          生成创建operatoe查询对象方法
+            // ==============================================
+            stream.Write("""
+
+                            public ####CLASS_NAME####Operator operator(){
+                    return new ####CLASS_NAME####Operator(getBaseMapper());
+                }
+
+                public static class ####CLASS_NAME####Operator{
+
+                    private final LambdaQueryWrapper<####CLASS_NAME####> queryWrapper=new LambdaQueryWrapper<>();
+
+                    private final ####CLASS_NAME####Mapper baseMapper;
+
+                    public ####CLASS_NAME####Operator(####CLASS_NAME####Mapper baseMapper) {
+                        this.baseMapper = baseMapper;
+                    }
+
+                    public ####CLASS_NAME####Operator and(Consumer<LambdaQueryWrapper<####CLASS_NAME####>> consumer){
+                        queryWrapper.and(consumer);
+                        return this;
+                    }
+
+                    public ####CLASS_NAME####Operator or(Consumer<LambdaQueryWrapper<####CLASS_NAME####>> consumer){
+                        queryWrapper.or(consumer);
+                        return this;
+                    }
+
+                    public ####CLASS_NAME####Operator notNull(SFunction<####CLASS_NAME####,?> function){
+                        queryWrapper.isNotNull(function);
+                        return this;
+                    }
+
+                    public ####CLASS_NAME####Operator eq(SFunction<####CLASS_NAME####,?> function,Object value){
+                        queryWrapper.eq(function,value);
+                        return this;
+                    }
+
+                    public ####CLASS_NAME####Operator ne(SFunction<####CLASS_NAME####,?> function,Object value){
+                        queryWrapper.ne(function,value);
+                        return this;
+                    }
+
+                    public ####CLASS_NAME####Operator le(SFunction<####CLASS_NAME####,?> function,Object value){
+                        queryWrapper.le(function,value);
+                        return this;
+                    }
+
+                    public ####CLASS_NAME####Operator lt(SFunction<####CLASS_NAME####,?> function,Object value){
+                        queryWrapper.lt(function,value);
+                        return this;
+                    }
+
+                    public ####CLASS_NAME####Operator ge(SFunction<####CLASS_NAME####,?> function,Object value){
+                        queryWrapper.ge(function,value);
+                        return this;
+                    }
+
+                    public ####CLASS_NAME####Operator gt(SFunction<####CLASS_NAME####,?> function,Object value){
+                        queryWrapper.gt(function,value);
+                        return this;
+                    }
+
+                    public ####CLASS_NAME####Operator like(SFunction<####CLASS_NAME####,?> function,Object value){
+                        queryWrapper.like(function,value);
+                        return this;
+                    }
+
+                    public ####CLASS_NAME####Operator notLike(SFunction<####CLASS_NAME####,?> function,Object value){
+                        queryWrapper.notLike(function,value);
+                        return this;
+                    }
+
+                    public ####CLASS_NAME#### selectOne(){
+                        return baseMapper.selectOne(queryWrapper);
+                    }
+
+                    public List<####CLASS_NAME####> selectList(){
+                        return baseMapper.selectList(queryWrapper);
+                    }
+
+                    public long selectCount(){
+                        return baseMapper.selectCount(queryWrapper);
+                    }
+
+                    public IPage<####CLASS_NAME####> selectPage(Integer page, Integer pageSize) {
+                        if (page == null || page < 0) {
+                            throw new RuntimeException("分页页码page格式不正确。");
+                        }
+                        if (pageSize == null || pageSize < 0) {
+                            throw new RuntimeException("分页参数pageSize格式不正确。");
+                        }
+                        return baseMapper.selectPage(new Page<>(page, pageSize),queryWrapper);
+                    }
+
                 }
 
                 """.Replace("####CLASS_NAME####", className));
