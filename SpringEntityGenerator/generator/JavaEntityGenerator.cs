@@ -45,7 +45,10 @@ namespace SpringEntityGenerator.generator
                 import com.baomidou.mybatisplus.annotation.TableField;
                 import com.baomidou.mybatisplus.annotation.TableId;
                 import com.baomidou.mybatisplus.annotation.TableName;
+                import java.lang.reflect.Field;
+                import java.util.Arrays;
                 import java.util.Date;
+                import java.util.List;
 
                 /**
                   * ####CN_NAME####<br>####TABLE_COMMENT####
@@ -97,6 +100,40 @@ namespace SpringEntityGenerator.generator
                     );
                 }
             }
+
+            // =========================================
+            //             写入 create 静态方法
+            // =========================================
+            stream.Write("""
+
+                            /**
+                 * 从另一个对象中复制相同字段的值
+                 */
+                public static ####CLASS_NAME#### create(Object object) {
+                    ####CLASS_NAME#### targetObject = new ####CLASS_NAME####();
+                    try {
+                        Class<?> targetClass = targetObject.getClass();
+                        Field[] targetFields = targetClass.getDeclaredFields();
+                        Class<?> paramsClass = object.getClass();
+                        Field[] paramsFields = paramsClass.getDeclaredFields();
+                        for (Field paramsField : paramsFields) {
+                            List<Field> targetValueFields = Arrays.stream(targetFields).filter(item -> item.getName().equals(paramsField.getName())).toList();
+                            for (Field targetField : targetValueFields) {
+                                targetField.setAccessible(true);
+                                if(targetField.getGenericType().equals(paramsField.getGenericType())){
+                                    targetField.set(targetObject, paramsField.get(object));
+                                }
+
+                            }
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException(e.getMessage());
+                    }
+                    return targetObject;
+                }
+
+                """.Replace("####CLASS_NAME####", className));
+
             stream.Write("}");
             stream.Close();
         }
