@@ -325,12 +325,26 @@ namespace SpringEntityGenerator.generator
                         return this;
                     }
 
+                    public ####CLASS_NAME#### orderByAsc(SFunction<####CLASS_NAME####,?> function){
+                        queryWrapper.orderByAsc(function);
+                        return this;
+                    }
+
+                    public ####CLASS_NAME#### orderByDesc(SFunction<####CLASS_NAME####,?> function){
+                        queryWrapper.orderByDesc(function);
+                        return this;
+                    }
+
                     public ####CLASS_NAME#### selectOne(){
                         return baseMapper.selectOne(queryWrapper);
                     }
 
                     public List<####CLASS_NAME####> selectList(){
                         return baseMapper.selectList(queryWrapper);
+                    }
+
+                    public ####CLASS_NAME#### selectOnlyFirst(){
+                        return baseMapper.selectOne(queryWrapper.last("LIMIT 1"));
                     }
 
                     public long selectCount(){
