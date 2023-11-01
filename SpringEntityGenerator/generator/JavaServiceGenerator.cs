@@ -325,12 +325,12 @@ namespace SpringEntityGenerator.generator
                         return this;
                     }
 
-                    public ####CLASS_NAME#### orderByAsc(SFunction<####CLASS_NAME####,?> function){
+                    public ####CLASS_NAME####Operator orderByAsc(SFunction<####CLASS_NAME####,?> function){
                         queryWrapper.orderByAsc(function);
                         return this;
                     }
 
-                    public ####CLASS_NAME#### orderByDesc(SFunction<####CLASS_NAME####,?> function){
+                    public ####CLASS_NAME####Operator orderByDesc(SFunction<####CLASS_NAME####,?> function){
                         queryWrapper.orderByDesc(function);
                         return this;
                     }
