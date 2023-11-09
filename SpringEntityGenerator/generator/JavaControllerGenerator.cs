@@ -284,6 +284,13 @@ namespace SpringEntityGenerator.generator
             stream.Write("\n@Transactional\n@PostMapping(\"save\")\n public Object save(@RequestBody Save save){\n");
             stream.Write("save.checkLegality();\n");
             stream.Write($"var object=create({saveCallCreateBody});\n");
+            stream.Write("""
+                if (save.id != null) {
+                    var entity = getOneEqualNotNull(####CLASS_NAME####::getId, save.id);
+                    ####CLASS_NAME####.copy(object,entity);
+                }
+
+                """.Replace("####CLASS_NAME####", className));
             stream.Write($"return this.onHandleSaveAfter(saveEntity(this.onHandleSaveBefore(object)));\n");
             stream.Write("\n}");
             // ==============================================
