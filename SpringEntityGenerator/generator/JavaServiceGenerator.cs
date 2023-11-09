@@ -178,7 +178,7 @@ namespace SpringEntityGenerator.generator
                                     public ####CLASSNAME#### getOneEqualNotNull(####PARAMS####) {
                         var _value=getOne(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
                         if(_value==null){
-                            throw new RuntimeException("要查询的值不存在。");
+                            throw new RuntimeException("要查询的“####CLASSNAME####”对象不存在。");
                         }
                         return _value;
                     }

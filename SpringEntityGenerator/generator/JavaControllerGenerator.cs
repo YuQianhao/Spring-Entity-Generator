@@ -315,12 +315,12 @@ namespace SpringEntityGenerator.generator
                 // 检查是否为null
                 if (!field.AllowNull)
                 {
-                    checkValueText.Append("if(##FIELD_NAME##==null){throw new RuntimeException(\"要修改的值不能是空的。\");}\n".Replace("##FIELD_NAME##",field.Name));
+                    checkValueText.Append("if(##FIELD_NAME##==null){throw new RuntimeException(\"字段“##FIELD_NAME##”的值不能是空的。\");}\n".Replace("##FIELD_NAME##",field.Name));
                 }
                 // 检查是否是字符串并且检查字符串允许的长度
                 if (field.IsTextType())
                 {
-                    checkValueText.Append("if(##FIELD_NAME##.length() < ##MIN_LENGTH## || ##FIELD_NAME##.length() > ##MAX_LENGTH##){throw new RuntimeException(\"这个字段的内容长度格式不正确，内容长度不能小于##MIN_LENGTH##位，不能大于##MAX_LENGTH##位。\");}\n"
+                    checkValueText.Append("if(##FIELD_NAME##.length() < ##MIN_LENGTH## || ##FIELD_NAME##.length() > ##MAX_LENGTH##){throw new RuntimeException(\"字段“##FIELD_NAME##”的内容长度格式不正确，内容长度不能小于##MIN_LENGTH##位，不能大于##MAX_LENGTH##位。\");}\n"
                                               .Replace("##FIELD_NAME##", field.Name)
                                               .Replace("##MIN_LENGTH##",field.MinLength.ToString())
                                               .Replace("##MAX_LENGTH##", field.MaxLength.ToString())
@@ -329,7 +329,7 @@ namespace SpringEntityGenerator.generator
                 // 检查数字的限制
                 if (field.IsNumberType())
                 {
-                    checkValueText.Append("if(##FIELD_NAME## < ##MIN_VALUE## || ##FIELD_NAME## > ##MAX_VALUE##){throw new RuntimeException(\"这个字段的值不正确，值不能小于##MIN_VALUE##，不能大于##MAX_VALUE##。\");}\n"
+                    checkValueText.Append("if(##FIELD_NAME## < ##MIN_VALUE## || ##FIELD_NAME## > ##MAX_VALUE##){throw new RuntimeException(\"字段“##FIELD_NAME##”的值不正确，值不能小于##MIN_VALUE##，不能大于##MAX_VALUE##。\");}\n"
                                               .Replace("##FIELD_NAME##", field.Name)
                                               .Replace("##MIN_VALUE##", field.MinValue.ToString(CultureInfo.InvariantCulture))
                                               .Replace("##MAX_VALUE##", field.MaxValue.ToString(CultureInfo.InvariantCulture))
@@ -367,7 +367,7 @@ namespace SpringEntityGenerator.generator
                     public Object set##UPPERCASE_FIELD_NAME##(@RequestBody Set##UPPERCASE_FIELD_NAME## _newValue)
                     {
                         var entity=getEntityById(_newValue.id);
-                        if(entity==null){throw new RuntimeException("要修改的数据对象不存在。");}
+                        if(entity==null){throw new RuntimeException("要修改的“##CLASS_NAME##”对象不存在。");}
                         entity=onHandleSet##UPPERCASE_FIELD_NAME##Before(entity,_newValue.##FIELD_NAME##);
                         saveEntity(entity);
                         return onHandleSet##UPPERCASE_FIELD_NAME##After(entity);
