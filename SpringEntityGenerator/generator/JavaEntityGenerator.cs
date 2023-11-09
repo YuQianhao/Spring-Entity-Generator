@@ -106,11 +106,10 @@ namespace SpringEntityGenerator.generator
             // =========================================
             stream.Write("""
 
-                            /**
+                /**
                  * 从另一个对象中复制相同字段的值
                  */
-                public static ####CLASS_NAME#### create(Object object) {
-                    ####CLASS_NAME#### targetObject = new ####CLASS_NAME####();
+                public static ####CLASS_NAME#### copy(####CLASS_NAME#### targetObject , Object object) {
                     try {
                         Class<?> targetClass = targetObject.getClass();
                         Field[] targetFields = targetClass.getDeclaredFields();
@@ -130,6 +129,14 @@ namespace SpringEntityGenerator.generator
                         throw new RuntimeException(e.getMessage());
                     }
                     return targetObject;
+                }
+
+
+                /**
+                 * 根据其他对象的相同字段创建一个对象
+                 */
+                public static ####CLASS_NAME#### create(Object object) {
+                    return copy(new ####CLASS_NAME####(),object);
                 }
 
                 """.Replace("####CLASS_NAME####", className));
