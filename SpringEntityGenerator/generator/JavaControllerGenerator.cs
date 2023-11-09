@@ -391,10 +391,16 @@ namespace SpringEntityGenerator.generator
 
                     public ##CLASS_NAME## createWithSave(Save save)
                     {
-                    
-                        
                         save.checkLegality();
-                        return create(##CREATE_PARAMS##);
+                        ##CLASS_NAME## resultObject;
+                        var targetObject = create(##CREATE_PARAMS##);
+                        if (save.id != null) {
+                            resultObject = getOneEqualNotNull(##CLASS_NAME##::getId, save.id);
+                            ##CLASS_NAME##.copy(resultObject, targetObject);
+                        } else {
+                            resultObject = targetObject;
+                        }
+                        return resultObject;
                     }
 
                     """
