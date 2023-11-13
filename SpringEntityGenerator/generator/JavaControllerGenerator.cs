@@ -226,7 +226,7 @@ namespace SpringEntityGenerator.generator
 
                 /* 重写这个方法可以处理remove接口在删除之后的处理业务，这个返回结果将会直接返回给发起请求的客户端。**/
                 protected Object onHandleRemoveAfter(####CLASS_NAME#### object) {
-                    return new Object();
+                    throw new RuntimeException("没有找到“onHandleRemoveAfter”方法的实现。");
                 }
                 """.Replace("####CLASS_NAME####",className));
             stream.Write("""
