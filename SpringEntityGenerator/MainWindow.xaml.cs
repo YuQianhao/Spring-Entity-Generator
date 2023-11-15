@@ -44,7 +44,7 @@ namespace SpringEntityGenerator
 
         private void MainWindow_OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            DataGridColumn.Height = e.NewSize.Height - 740 + 320;
+            DataGridColumn.Height = e.NewSize.Height - 660 + 320;
         }
 
         private void MainWindow_OnInitialized(object? sender, EventArgs e)

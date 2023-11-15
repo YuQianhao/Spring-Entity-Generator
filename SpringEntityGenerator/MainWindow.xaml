@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SpringEntityGenerator"
         xmlns:model="clr-namespace:SpringEntityGenerator.Model"
         mc:Ignorable="d"
-        Title="SpringEntityGenerator" MinHeight="760" Height="841" Width="1300" SizeChanged="MainWindow_OnSizeChanged" Initialized="MainWindow_OnInitialized">
+        Title="数据结构模板生成" MinHeight="760" Height="841" Width="1300" SizeChanged="MainWindow_OnSizeChanged" Initialized="MainWindow_OnInitialized">
     <Window.Resources>
         <ObjectDataProvider x:Key="ColumnType" ObjectType="{x:Type model:ColumnTypes}" MethodName="GetValues">
             <ObjectDataProvider.MethodParameters>
@@ -24,47 +24,65 @@
             <model:Project></model:Project>
         </DockPanel.DataContext>
         <StackPanel DockPanel.Dock="Top">
-            <GroupBox Header="全局项目、数据库设置" >
-                <StackPanel Margin="0,10,0,10">
-                    <StackPanel Orientation="Horizontal" >
-                        <Label Content="项目路径："></Label>
-                        <Label Content="{Binding Path}" Width="300"></Label>
-                        <Button Content="选择项目" Padding="10,0,10,0" Name="ButtonOpenProject" Click="ButtonOpenProject_Click"></Button>
-                        <Label Content="数据库字典路径：" Margin="10,0,0,0"></Label>
-                        <Label Content="{Binding DocumentPath}" Width="300"></Label>
-                        <Button Content="选择路径" Padding="10,0,10,0" Name="ButtonSelectDocumentPath" Click="ButtonSelectDocumentPath_Click"></Button>
+            <StackPanel Orientation="Horizontal">
+                <GroupBox Header="项目设置">
+                    <StackPanel Orientation="Vertical" Margin="0,10,0,10">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="项目路径："></Label>
+                            <Label Content="{Binding Path}" Width="300"></Label>
+                            <Button Content="选择项目" Padding="10,0,10,0" Name="ButtonOpenProject" Click="ButtonOpenProject_Click"></Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Label Content="字典路径：" ></Label>
+                            <Label Content="{Binding DocumentPath}" Width="300"></Label>
+                            <Button Content="选择路径" Padding="10,0,10,0" Name="ButtonSelectDocumentPath" Click="ButtonSelectDocumentPath_Click"></Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Label Content="项目包名："></Label>
+                            <TextBox VerticalContentAlignment="Center" Width="300" Text="{Binding PackageName}"></TextBox>
+                        </StackPanel>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <Label Content="MySql Config   Host："></Label>
-                        <TextBox Width="100" VerticalContentAlignment="Center" Text="{Binding MySql.Host}" ></TextBox>
-                        <Label Content="Port："></Label>
-                        <TextBox Width="100" VerticalContentAlignment="Center" Text="{Binding MySql.Port}" ></TextBox>
-                        <Label Content="User："></Label>
-                        <TextBox Width="100" Padding="10,0,10,0" Text="{Binding MySql.User}" VerticalContentAlignment="Center" ></TextBox>
-                        <Label Content="Password："></Label>
-                        <TextBox Width="100" Padding="10,0,10,0" Text="{Binding MySql.Password}" VerticalContentAlignment="Center" ></TextBox>
-                        <Label Content="数据库："></Label>
-                        <TextBox Width="100" Padding="10,0,10,0" VerticalContentAlignment="Center" Text="{Binding MySql.Databases}"></TextBox>
-                        <Button Margin="10,0,0,0" Content="测试连接" Padding="10,0,10,0" Name="ButtonTestMySql" Click="ButtonTestMySql_Click"></Button>
+                </GroupBox>
+                <GroupBox Header="数据库[MySql]设置">
+                    <StackPanel Orientation="Vertical" Margin="0,10,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="主机："></Label>
+                            <TextBox Width="150" VerticalContentAlignment="Center" Text="{Binding MySql.Host}" ></TextBox>
+                            <Label Content="端口：" Margin="10,0,0,0"></Label>
+                            <TextBox Width="150" VerticalContentAlignment="Center" Text="{Binding MySql.Port}" ></TextBox>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Label Content="用户："></Label>
+                            <TextBox Width="150" Padding="10,0,10,0" Text="{Binding MySql.User}" VerticalContentAlignment="Center" ></TextBox>
+                            <Label Content="密码：" Margin="10,0,0,0"></Label>
+                            <TextBox Width="150" Padding="10,0,10,0" Text="{Binding MySql.Password}" VerticalContentAlignment="Center" ></TextBox>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Label Content="库名："></Label>
+                            <TextBox Width="150" Padding="10,0,10,0" VerticalContentAlignment="Center" Text="{Binding MySql.Databases}"></TextBox>
+                            <Button Margin="10,0,0,0" Content="测试连接" Padding="10,0,10,0" Name="ButtonTestMySql" Click="ButtonTestMySql_Click"></Button>
+                        </StackPanel>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <Label Content="项目包名："></Label>
-                        <TextBox VerticalContentAlignment="Center" Width="300" Text="{Binding PackageName}"></TextBox>
-                        <Label Content="自动备份旧的文件："></Label>
-                        <CheckBox IsChecked="{Binding AutoBackup}" VerticalContentAlignment="Center"></CheckBox>
+                </GroupBox>
+                <GroupBox Header="代码生成设置">
+                    <StackPanel Orientation="Vertical" Margin="0,10,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="备份旧的代码："></Label>
+                            <CheckBox IsChecked="{Binding AutoBackup}" VerticalContentAlignment="Center"></CheckBox>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Label Content="分页页码字段名称："></Label>
+                            <TextBox Text="{Binding PageFieldName}" Width="100" VerticalContentAlignment="Center"></TextBox>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Label Content="每页长度字段名称："></Label>
+                            <TextBox Text="{Binding PageSizeFieldName}" Width="100" VerticalContentAlignment="Center"></TextBox>
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
-            </GroupBox>
-            <GroupBox Header="全局生成设置" Margin="0,10,0,0">
-                <StackPanel Orientation="Horizontal" Margin="10">
-                    <Label Content="分页页码字段："></Label>
-                    <TextBox Text="{Binding PageFieldName}" Width="100" VerticalContentAlignment="Center"></TextBox>
-                    <Label Content="分页数据长度字段："></Label>
-                    <TextBox Text="{Binding PageSizeFieldName}" Width="100" VerticalContentAlignment="Center"></TextBox>
-                </StackPanel>
-            </GroupBox>
+                </GroupBox>
+            </StackPanel>
         </StackPanel>
-        <GroupBox Header="Entity脚本" Margin="0,10,0,0" Name="GroupBoxTable">
+        <GroupBox Header="数据结构" Margin="0,10,0,0" Name="GroupBoxTable">
             <StackPanel Margin="0,10,0,10">
                 <StackPanel DockPanel.Dock="Top">
                     <StackPanel Orientation="Horizontal" >
@@ -83,15 +101,15 @@
                         </ComboBox>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <Label Content="Entity名称："></Label>
-                        <TextBox  Width="200" Text="{Binding Path=Table.Name}" VerticalContentAlignment="Center"></TextBox>
-                        <Label Content="中文名称："></Label>
-                        <TextBox Width="200" VerticalContentAlignment="Center" Text="{Binding Path=Table.CnName}"></TextBox>
-                        <Label Content="全局前缀："></Label>
-                        <TextBox Width="185" VerticalContentAlignment="Center" Text="{Binding Table.Prefix}"/>
-                        <Label Content="表/字段名大写："></Label>
+                        <Label Content="名称："></Label>
+                        <TextBox  Width="150" Text="{Binding Path=Table.Name}" VerticalContentAlignment="Center"></TextBox>
+                        <Label Content="中文名称：" Margin="10,0,0,0"></Label>
+                        <TextBox Width="150" VerticalContentAlignment="Center" Text="{Binding Path=Table.CnName}"></TextBox>
+                        <Label Content="数据库前缀：" Margin="10,0,0,0"></Label>
+                        <TextBox Width="150" VerticalContentAlignment="Center" Text="{Binding Table.Prefix}"/>
+                        <Label Content="数据库字段名大写：" Margin="10,0,0,0"></Label>
                         <CheckBox IsChecked="{Binding Table.Uppercase}" VerticalContentAlignment="Center"></CheckBox>
-                        <Label Content="注释："></Label>
+                        <Label Content="注释：" Margin="10,0,0,0"></Label>
                         <TextBox VerticalContentAlignment="Center" Text="{Binding Table.Comment}" Width="179"/>
                     </StackPanel>
                     <DataGrid Name="DataGridColumn" 

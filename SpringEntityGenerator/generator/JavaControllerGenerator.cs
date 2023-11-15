@@ -204,7 +204,7 @@ namespace SpringEntityGenerator.generator
                     return object;
                 }
 
-                @PostMapping("getEntity")
+                @PostMapping("template/getEntity")
                 public Object getEntity(@RequestBody OnlyId onlyId) {
                     if (onlyId.id == null) {
                         throw new RuntimeException("要查询的对象'id'格式不正确，id通常为Integer类型的数据，并且不能是空的。");
@@ -231,7 +231,7 @@ namespace SpringEntityGenerator.generator
                 """.Replace("####CLASS_NAME####",className));
             stream.Write("""
                             @Transactional
-                            @PostMapping("remove")
+                            @PostMapping("template/remove")
                 public Object remove(@RequestBody OnlyId onlyId){
                     if(onlyId.id==null){
                         throw new RuntimeException("The object 'id' to be deleted cannot be empty.");
@@ -258,7 +258,7 @@ namespace SpringEntityGenerator.generator
                     }
                     """.Replace("####CLASS_NAME####", className));
 
-            stream.Write("\n@PostMapping(\"select\")\n    public Object select(@RequestBody Select select){\n");
+            stream.Write("\n@PostMapping(\"template/select\")\n    public Object select(@RequestBody Select select){\n");
             stream.Write("""
                                 if(select.####PAGE_FIELD####==null || select.####PAGE_FIELD####<1){
                         throw new RuntimeException("字段'####PAGE_FIELD####'的值不能小于1，这个字段是Integer类型，在这里也不能是空的。");
@@ -281,7 +281,7 @@ namespace SpringEntityGenerator.generator
             stream.Write("\nprotected static class Save {\n" + saveClassFields + "\npublic void checkLegality(){\n"+ saveMethodFieldCheck + "\n}\n}\n");
             stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之前的回调，这个返回结果将会被传入数据库save方法。**/\nprotected {className} onHandleSaveBefore({className} entity){{\n return entity;\n}}\n");
             stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之后的回调，这个返回结果将会直接返回给发起请求的客户端。**/\nprotected Object onHandleSaveAfter({className} entity){{\n return entity;\n}}\n");
-            stream.Write("\n@Transactional\n@PostMapping(\"save\")\n public Object save(@RequestBody Save save){\n");
+            stream.Write("\n@Transactional\n@PostMapping(\"template/save\")\n public Object save(@RequestBody Save save){\n");
             stream.Write("save.checkLegality();\n");
             stream.Write($"var object=create({saveCallCreateBody});\n");
             stream.Write("""
@@ -363,7 +363,7 @@ namespace SpringEntityGenerator.generator
                     }
 
                     @Transactional
-                    @PostMapping("set##UPPERCASE_FIELD_NAME##")
+                    @PostMapping("template/set##UPPERCASE_FIELD_NAME##")
                     public Object set##UPPERCASE_FIELD_NAME##(@RequestBody Set##UPPERCASE_FIELD_NAME## _newValue)
                     {
                         var entity=getEntityById(_newValue.id);
