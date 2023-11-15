@@ -37,10 +37,6 @@ namespace SpringEntityGenerator
             return (Project)ProjectConfigPanel.DataContext;
         }
 
-        private void UpdateProjectConfig(Project project)
-        {
-            ProjectConfigPanel.DataContext = project;
-        }
 
         private void MainWindow_OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -68,6 +64,7 @@ namespace SpringEntityGenerator
                 }
             };
             ProjectConfigPanel.DataContext = project;
+
         }
 
         private void ButtonSave_Click(object sender, RoutedEventArgs e)

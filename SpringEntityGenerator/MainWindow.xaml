@@ -67,7 +67,7 @@
                 <GroupBox Header="代码生成设置">
                     <StackPanel Orientation="Vertical" Margin="0,10,0,0">
                         <StackPanel Orientation="Horizontal">
-                            <Label Content="备份旧的代码："></Label>
+                            <Label Content="备份旧的项目代码："></Label>
                             <CheckBox IsChecked="{Binding AutoBackup}" VerticalContentAlignment="Center"></CheckBox>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
