@@ -77,7 +77,7 @@ namespace SpringEntityGenerator.generator
                     lineSql += " NOT NULL";
                 }
                 // 添加注释
-                lineSql += $" COMMENT '{column.Comment}' ,";
+                lineSql += $" COMMENT '{column.Comment}；[注意]不要修改这些定义，如要修改，需要修改数据结构映射。' ,";
                 columnSql.Append(lineSql);
                 // 添加主键
                 if (column.Key)

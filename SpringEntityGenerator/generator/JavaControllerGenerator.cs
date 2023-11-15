@@ -56,7 +56,7 @@ namespace SpringEntityGenerator.generator
                 public class ####CLASS_NAME####ControllerTemplate extends ####CLASS_NAME####ServiceTemplate {
                 """.Replace("####CLASS_NAME####", className).Replace("####PACKAGE_NAME####", project.PackageName)
             );
-            
+
             // Save类的字段
             var saveClassFields = new StringBuilder();
             // save方法的字段检查
@@ -66,13 +66,13 @@ namespace SpringEntityGenerator.generator
             // Select类的字段
             var selectClassFields = new StringBuilder();
             // select字段拼接查询参数
-            var selectBody=new StringBuilder();
+            var selectBody = new StringBuilder();
             foreach (var field in project.Table.Columns)
             {
                 saveCallCreateBody.Append("");
                 if (field.Key || field.SaveParameter)
                 {
-                    saveCallCreateBody.Append("save."+field.Name);
+                    saveCallCreateBody.Append("save." + field.Name);
                 }
                 else
                 {
@@ -109,7 +109,8 @@ namespace SpringEntityGenerator.generator
                             selectBody.Append($"if(select.{field.Name}!=null){{\n");
                             selectBody.Append($"query.eq({className}::get{field.Name.First().ToString().ToUpper() + field.Name[1..]},select.{field.Name});\n}}\n");
                         }
-                    }else if (field.SelectRange)
+                    }
+                    else if (field.SelectRange)
                     {
                         if (field.IsTextType())
                         {
@@ -125,7 +126,7 @@ namespace SpringEntityGenerator.generator
                             selectBody.Append($"if(select.{field.Name}End!=null){{\n");
                             selectBody.Append($"query.lt({className}::get{field.Name.First().ToString().ToUpper() + field.Name[1..]},select.{field.Name}End);\n}}\n");
                         }
-                        
+
                     }
                 }
                 if (field.Key || field.SaveParameter)
@@ -191,10 +192,10 @@ namespace SpringEntityGenerator.generator
                 saveCallCreateBody.Remove(saveCallCreateBody.Length - 1, 1);
             }
             stream.Write("""
-                            protected static class OnlyId{
+                            protected static class ####CLASS_NAME####_OnlyId{
                     public Integer id;
                 }
-                """);
+                """.Replace("####CLASS_NAME####", className));
             // ============================================
             // getEntity方法
             // ============================================
@@ -205,13 +206,13 @@ namespace SpringEntityGenerator.generator
                 }
 
                 @PostMapping("template/getEntity")
-                public Object getEntity(@RequestBody OnlyId onlyId) {
+                public Object getEntity(@RequestBody ####CLASS_NAME####_OnlyId onlyId) {
                     if (onlyId.id == null) {
                         throw new RuntimeException("要查询的对象'id'格式不正确，id通常为Integer类型的数据，并且不能是空的。");
                     }
                     return this.onHandleGetAfter(getById(onlyId.id));
                 }
-                """.Replace("####CLASS_NAME####",className));
+                """.Replace("####CLASS_NAME####", className));
             // ============================================
             // remove方法
             // ============================================
@@ -228,11 +229,11 @@ namespace SpringEntityGenerator.generator
                 protected Object onHandleRemoveAfter(####CLASS_NAME#### object) {
                     throw new RuntimeException("没有找到“onHandleRemoveAfter”方法的实现。");
                 }
-                """.Replace("####CLASS_NAME####",className));
+                """.Replace("####CLASS_NAME####", className));
             stream.Write("""
                             @Transactional
                             @PostMapping("template/remove")
-                public Object remove(@RequestBody OnlyId onlyId){
+                public Object remove(@RequestBody ####CLASS_NAME####_OnlyId onlyId){
                     if(onlyId.id==null){
                         throw new RuntimeException("The object 'id' to be deleted cannot be empty.");
                     }
@@ -241,12 +242,12 @@ namespace SpringEntityGenerator.generator
                     object.id=null;
                     return this.onHandleRemoveAfter(object);
                 }
-                """);
+                """.Replace("####CLASS_NAME####", className));
             // =============================================
             // select方法
             // =============================================
             selectClassFields.Append($"public Integer {project.PageFieldName};\npublic Integer {project.PageSizeFieldName};\n");
-            stream.Write($"\nprotected static class Select {{\n{selectClassFields} \n}}\n");
+            stream.Write($"\nprotected static class ####CLASS_NAME####_Select {{\n{selectClassFields} \n}}\n".Replace("####CLASS_NAME####", className));
             stream.Write("""
                     /* 重写这个方法可以处理select接口在创建完查询条件之后的回调，这个返回结果将会被传入分页查询的方法。**/
                     protected LambdaQueryWrapper<####CLASS_NAME####> onHandleSelectBefore(LambdaQueryWrapper<####CLASS_NAME####> queryWrapper){
@@ -258,7 +259,7 @@ namespace SpringEntityGenerator.generator
                     }
                     """.Replace("####CLASS_NAME####", className));
 
-            stream.Write("\n@PostMapping(\"template/select\")\n    public Object select(@RequestBody Select select){\n");
+            stream.Write("\n@PostMapping(\"template/select\")\n    public Object select(@RequestBody ####CLASS_NAME####_Select select){\n".Replace("####CLASS_NAME####", className));
             stream.Write("""
                                 if(select.####PAGE_FIELD####==null || select.####PAGE_FIELD####<1){
                         throw new RuntimeException("字段'####PAGE_FIELD####'的值不能小于1，这个字段是Integer类型，在这里也不能是空的。");
@@ -278,10 +279,10 @@ namespace SpringEntityGenerator.generator
             // =============================================
             // save方法
             // =============================================
-            stream.Write("\nprotected static class Save {\n" + saveClassFields + "\npublic void checkLegality(){\n"+ saveMethodFieldCheck + "\n}\n}\n");
+            stream.Write("\nprotected static class ####CLASS_NAME####_Save {\n".Replace("####CLASS_NAME####", className) + saveClassFields + "\npublic void checkLegality(){\n" + saveMethodFieldCheck + "\n}\n}\n");
             stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之前的回调，这个返回结果将会被传入数据库save方法。**/\nprotected {className} onHandleSaveBefore({className} entity){{\n return entity;\n}}\n");
             stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之后的回调，这个返回结果将会直接返回给发起请求的客户端。**/\nprotected Object onHandleSaveAfter({className} entity){{\n return entity;\n}}\n");
-            stream.Write("\n@Transactional\n@PostMapping(\"template/save\")\n public Object save(@RequestBody Save save){\n");
+            stream.Write("\n@Transactional\n@PostMapping(\"template/save\")\n public Object save(@RequestBody ####CLASS_NAME####_Save save){\n".Replace("####CLASS_NAME####", className));
             stream.Write("save.checkLegality();\n");
             stream.Write($"var object=create({saveCallCreateBody});\n");
             stream.Write("""
@@ -315,14 +316,14 @@ namespace SpringEntityGenerator.generator
                 // 检查是否为null
                 if (!field.AllowNull)
                 {
-                    checkValueText.Append("if(##FIELD_NAME##==null){throw new RuntimeException(\"字段“##FIELD_NAME##”的值不能是空的。\");}\n".Replace("##FIELD_NAME##",field.Name));
+                    checkValueText.Append("if(##FIELD_NAME##==null){throw new RuntimeException(\"字段“##FIELD_NAME##”的值不能是空的。\");}\n".Replace("##FIELD_NAME##", field.Name));
                 }
                 // 检查是否是字符串并且检查字符串允许的长度
                 if (field.IsTextType())
                 {
                     checkValueText.Append("if(##FIELD_NAME##.length() < ##MIN_LENGTH## || ##FIELD_NAME##.length() > ##MAX_LENGTH##){throw new RuntimeException(\"字段“##FIELD_NAME##”的内容长度格式不正确，内容长度不能小于##MIN_LENGTH##位，不能大于##MAX_LENGTH##位。\");}\n"
                                               .Replace("##FIELD_NAME##", field.Name)
-                                              .Replace("##MIN_LENGTH##",field.MinLength.ToString())
+                                              .Replace("##MIN_LENGTH##", field.MinLength.ToString())
                                               .Replace("##MAX_LENGTH##", field.MaxLength.ToString())
                                           );
                 }
@@ -339,7 +340,7 @@ namespace SpringEntityGenerator.generator
                 // 创建属性修改参数
                 var scriptText = new StringBuilder();
                 scriptText.Append("""
-                    protected static class Set##UPPERCASE_FIELD_NAME##{
+                    protected static class ##CLASS_NAME##_Set##UPPERCASE_FIELD_NAME##{
 
                         // 主键id
                         public Integer id;
@@ -364,7 +365,7 @@ namespace SpringEntityGenerator.generator
 
                     @Transactional
                     @PostMapping("template/set##UPPERCASE_FIELD_NAME##")
-                    public Object set##UPPERCASE_FIELD_NAME##(@RequestBody Set##UPPERCASE_FIELD_NAME## _newValue)
+                    public Object set##UPPERCASE_FIELD_NAME##(@RequestBody ##CLASS_NAME##_Set##UPPERCASE_FIELD_NAME## _newValue)
                     {
                         var entity=getEntityById(_newValue.id);
                         if(entity==null){throw new RuntimeException("要修改的“##CLASS_NAME##”对象不存在。");}
@@ -374,11 +375,11 @@ namespace SpringEntityGenerator.generator
                     }
                     """
                     .Replace("##UPPERCASE_FIELD_NAME##", uppercaseFieldName)
-                    .Replace("##TYPE##",field.ToJavaType())
+                    .Replace("##TYPE##", field.ToJavaType())
                     .Replace("##FIELD_NAME##", field.Name)
                     .Replace("##CLASS_NAME##", className)
-                    .Replace("##COMMENT##", field.Name+","+field.Comment)
-                    .Replace("##CHECK_TEXT##",checkValueText.ToString())
+                    .Replace("##COMMENT##", field.Name + "," + field.Comment)
+                    .Replace("##CHECK_TEXT##", checkValueText.ToString())
                 );
                 stream.Write(scriptText.ToString());
             }
@@ -389,7 +390,7 @@ namespace SpringEntityGenerator.generator
             var createWithSave = new StringBuilder();
             createWithSave.Append("""
 
-                    public ##CLASS_NAME## createWithSave(Save save)
+                    public ##CLASS_NAME## createWithSave(##CLASS_NAME##_Save save)
                     {
                         save.checkLegality();
                         ##CLASS_NAME## resultObject;
