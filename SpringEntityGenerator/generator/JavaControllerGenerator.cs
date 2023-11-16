@@ -220,7 +220,7 @@ namespace SpringEntityGenerator.generator
                             /* 重写这个方法可以处理remove接口在查询到要删除的对象，这个返回结果将会被传入数据库的删除方法。**/
                 protected ####CLASS_NAME#### onHandleRemoveBefore(####CLASS_NAME#### object) {
                     if(object==null){
-                        throw new RuntimeException("要删除的对象不存在。");
+                        throw new RuntimeException("要删除的####CN_CLASS_NAME####对象不存在。");
                     }
                     return object;
                 }
@@ -229,7 +229,7 @@ namespace SpringEntityGenerator.generator
                 protected Object onHandleRemoveAfter(####CLASS_NAME#### object) {
                     throw new RuntimeException("没有找到“onHandleRemoveAfter”方法的实现。");
                 }
-                """.Replace("####CLASS_NAME####", className));
+                """.Replace("####CLASS_NAME####", className).Replace("####CN_CLASS_NAME####",project.Table.CnName));
             stream.Write("""
                             @Transactional
                             @PostMapping("template/remove")
@@ -368,7 +368,7 @@ namespace SpringEntityGenerator.generator
                     public Object set##UPPERCASE_FIELD_NAME##(@RequestBody ##CLASS_NAME##_Set##UPPERCASE_FIELD_NAME## _newValue)
                     {
                         var entity=getEntityById(_newValue.id);
-                        if(entity==null){throw new RuntimeException("要修改的“##CLASS_NAME##”对象不存在。");}
+                        if(entity==null){throw new RuntimeException("要修改的“##CN_CLASS_NAME##”对象不存在。");}
                         entity=onHandleSet##UPPERCASE_FIELD_NAME##Before(entity,_newValue.##FIELD_NAME##);
                         saveEntity(entity);
                         return onHandleSet##UPPERCASE_FIELD_NAME##After(entity);
@@ -378,6 +378,7 @@ namespace SpringEntityGenerator.generator
                     .Replace("##TYPE##", field.ToJavaType())
                     .Replace("##FIELD_NAME##", field.Name)
                     .Replace("##CLASS_NAME##", className)
+                    .Replace("##CN_CLASS_NAME##", project.Table.CnName)
                     .Replace("##COMMENT##", field.Name + "," + field.Comment)
                     .Replace("##CHECK_TEXT##", checkValueText.ToString())
                 );

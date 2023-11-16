@@ -105,7 +105,7 @@ namespace SpringEntityGenerator.generator
             stream.Write($"""
                 {className} object = getById({project.Table.Columns.Find(item => item.Key)?.Name});
                 if(id!=null && object==null){"{"} 
-                    throw new RuntimeException("要修改的数据不存在。");
+                    throw new RuntimeException("要修改的{project.Table.CnName}数据对象不存在。");
                 {"}"}
                 boolean needInsert=false;
                 if(object == null) {"{"} 
@@ -178,12 +178,13 @@ namespace SpringEntityGenerator.generator
                                     public ####CLASSNAME#### getOneEqualNotNull(####PARAMS####) {
                         var _value=getOne(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
                         if(_value==null){
-                            throw new RuntimeException("要查询的“####CLASSNAME####”对象不存在。");
+                            throw new RuntimeException("要查询的“####CN_CLASSNAME####”对象不存在。");
                         }
                         return _value;
                     }
                     """.Replace("####PARAMS####", functionParams.ToString())
                     .Replace("####CLASSNAME####", className)
+                    .Replace("####CN_CLASSNAME####", project.Table.CnName)
                     .Replace("####CONDITION####", conditionText.ToString()));
                 stream.Write("\n");
                 // remove
