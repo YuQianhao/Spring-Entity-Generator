@@ -41,20 +41,22 @@ namespace SpringEntityGenerator.generator
             var stream = new StreamWriter(File.Create(filePath + mapperName));
             stream.Write(GetHeadStatementText());
             stream.Write("""
-                package ####PACKAGE_NAME####.controller;
+                package ##PACKAGE_NAME##.controller;
 
+                import java.util.*;
+                import java.lang.reflect.Field;
                 import java.util.Date;
                 import org.springframework.transaction.annotation.Transactional;
-                import ####PACKAGE_NAME####.entity.####CLASS_NAME####;
+                import ##PACKAGE_NAME##.entity.##CLASS_NAME##;
                 import org.springframework.web.bind.annotation.PostMapping;
                 import org.springframework.web.bind.annotation.RequestBody;
-                import ####PACKAGE_NAME####.service.####CLASS_NAME####ServiceTemplate;
+                import ##PACKAGE_NAME##.service.##CLASS_NAME##ServiceTemplate;
                 import com.baomidou.mybatisplus.core.metadata.IPage;
                 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
                 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
-                public class ####CLASS_NAME####ControllerTemplate extends ####CLASS_NAME####ServiceTemplate {
-                """.Replace("####CLASS_NAME####", className).Replace("####PACKAGE_NAME####", project.PackageName)
+                public class ##CLASS_NAME##ControllerTemplate extends ##CLASS_NAME##ServiceTemplate {
+                """.Replace("##CLASS_NAME##", className).Replace("##PACKAGE_NAME##", project.PackageName)
             );
 
             // Save类的字段
@@ -191,49 +193,104 @@ namespace SpringEntityGenerator.generator
             {
                 saveCallCreateBody.Remove(saveCallCreateBody.Length - 1, 1);
             }
+
+
+            // =============================================
+            // 创建动态类型，提供给select方法和getEntity方法使用
+            // =============================================
             stream.Write("""
-                            protected static class ####CLASS_NAME####_OnlyId{
+
+                /**
+                 * 内置构建的动态类型，这个类型可以在数据结构固有字段的基础上，额外进行一些修改
+                 */
+                protected static class ##CLASS_NAME##Dynamic extends HashMap<String, Object> {
+
+                    public ##CLASS_NAME##Dynamic(##CLASS_NAME## entity) {
+                        var classType = entity.getClass();
+                        try {
+                            for (Field field : classType.getDeclaredFields()) {
+                                field.setAccessible(true);
+                                add(field.getName(), field.get(entity));
+                            }
+                        } catch (Exception e) {
+                            throw new RuntimeException("类型" + classType.getName() + "无法被创建成为" + getClass().getName() + "，在创建字段时发生错误。" + e.getMessage());
+                        }
+                    }
+
+                    public ##CLASS_NAME##Dynamic add(String key, Object value) {
+                        remove(key);
+                        put(key, value);
+                        return this;
+                    }
+
+                    public ##CLASS_NAME## to##CLASS_NAME##() {
+                        try {
+                            var entity = new ##CLASS_NAME##();
+                            var classType = entity.getClass();
+                            var fields = classType.getDeclaredFields();
+                            for (String key : keySet()) {
+                                var fieldOptional = Arrays.stream(fields).filter(item -> item.getName().equals(key)).findFirst();
+                                if (fieldOptional.isPresent()) {
+                                    var field = fieldOptional.get();
+                                    field.setAccessible(true);
+                                    field.set(entity, get(key));
+                                }
+                            }
+                            return entity;
+                        } catch (Exception e) {
+                            throw new RuntimeException("将##CLASS_NAME##Dynamic转换成##CLASS_NAME##时发生错误。" + e.getMessage());
+                        }
+                    }
+
+                }
+
+                """.Replace("##CLASS_NAME##", className));
+
+            stream.Write("""
+                            protected static class ##CLASS_NAME##_OnlyId{
                     public Integer id;
                 }
-                """.Replace("####CLASS_NAME####", className));
+                """.Replace("##CLASS_NAME##", className));
+
             // ============================================
             // getEntity方法
             // ============================================
             stream.Write("""
                             /* 重写这个方法可以处理查询接口查询到的对象，这个返回结果将会直接返回给发起请求的客户端。**/
-                protected Object onHandleGetAfter(####CLASS_NAME#### object) {
+                protected Object onHandleGetAfter(##CLASS_NAME##Dynamic object) {
                     return object;
                 }
 
                 @PostMapping("template/getEntity")
-                public Object getEntity(@RequestBody ####CLASS_NAME####_OnlyId onlyId) {
+                public Object getEntity(@RequestBody ##CLASS_NAME##_OnlyId onlyId) {
                     if (onlyId.id == null) {
                         throw new RuntimeException("要查询的对象'id'格式不正确，id通常为Integer类型的数据，并且不能是空的。");
                     }
-                    return this.onHandleGetAfter(getById(onlyId.id));
+                    return this.onHandleGetAfter(new ##CLASS_NAME##Dynamic(getById(onlyId.id)));
                 }
-                """.Replace("####CLASS_NAME####", className));
+                """.Replace("##CLASS_NAME##", className));
+
             // ============================================
             // remove方法
             // ============================================
             stream.Write("""
                             /* 重写这个方法可以处理remove接口在查询到要删除的对象，这个返回结果将会被传入数据库的删除方法。**/
-                protected ####CLASS_NAME#### onHandleRemoveBefore(####CLASS_NAME#### object) {
+                protected ##CLASS_NAME## onHandleRemoveBefore(##CLASS_NAME## object) {
                     if(object==null){
-                        throw new RuntimeException("要删除的####CN_CLASS_NAME####对象不存在。");
+                        throw new RuntimeException("要删除的##CN_CLASS_NAME##对象不存在。");
                     }
                     return object;
                 }
 
                 /* 重写这个方法可以处理remove接口在删除之后的处理业务，这个返回结果将会直接返回给发起请求的客户端。**/
-                protected Object onHandleRemoveAfter(####CLASS_NAME#### object) {
+                protected Object onHandleRemoveAfter(##CLASS_NAME## object) {
                     throw new RuntimeException("没有找到“onHandleRemoveAfter”方法的实现。");
                 }
-                """.Replace("####CLASS_NAME####", className).Replace("####CN_CLASS_NAME####",project.Table.CnName));
+                """.Replace("##CLASS_NAME##", className).Replace("##CN_CLASS_NAME##",project.Table.CnName));
             stream.Write("""
                             @Transactional
                             @PostMapping("template/remove")
-                public Object remove(@RequestBody ####CLASS_NAME####_OnlyId onlyId){
+                public Object remove(@RequestBody ##CLASS_NAME##_OnlyId onlyId){
                     if(onlyId.id==null){
                         throw new RuntimeException("The object 'id' to be deleted cannot be empty.");
                     }
@@ -242,47 +299,60 @@ namespace SpringEntityGenerator.generator
                     object.id=null;
                     return this.onHandleRemoveAfter(object);
                 }
-                """.Replace("####CLASS_NAME####", className));
+                """.Replace("##CLASS_NAME##", className));
+
+
             // =============================================
             // select方法
             // =============================================
             selectClassFields.Append($"public Integer {project.PageFieldName};\npublic Integer {project.PageSizeFieldName};\n");
-            stream.Write($"\nprotected static class ####CLASS_NAME####_Select {{\n{selectClassFields} \n}}\n".Replace("####CLASS_NAME####", className));
+            stream.Write($"\nprotected static class ##CLASS_NAME##_Select {{\n{selectClassFields} \n}}\n".Replace("##CLASS_NAME##", className));
             stream.Write("""
                     /* 重写这个方法可以处理select接口在创建完查询条件之后的回调，这个返回结果将会被传入分页查询的方法。**/
-                    protected LambdaQueryWrapper<####CLASS_NAME####> onHandleSelectBefore(LambdaQueryWrapper<####CLASS_NAME####> queryWrapper){
+                    protected LambdaQueryWrapper<##CLASS_NAME##> onHandleSelectBefore(LambdaQueryWrapper<##CLASS_NAME##> queryWrapper){
                      return queryWrapper;
                     }
                     /* 重写这个方法可以处理select接口分页查询之后的结果，这个返回结果将会直接返回给发起请求的客户端。**/
-                    protected Object onHandleSelectAfter(Page<####CLASS_NAME####> result){
+                    protected Object onHandleSelectAfter(Page<##CLASS_NAME##Dynamic> result){
                      return result;
                     }
-                    """.Replace("####CLASS_NAME####", className));
+                    """.Replace("##CLASS_NAME##", className));
 
-            stream.Write("\n@PostMapping(\"template/select\")\n    public Object select(@RequestBody ####CLASS_NAME####_Select select){\n".Replace("####CLASS_NAME####", className));
+            stream.Write("\n@PostMapping(\"template/select\")\n    public Object select(@RequestBody ##CLASS_NAME##_Select select){\n".Replace("##CLASS_NAME##", className));
             stream.Write("""
-                                if(select.####PAGE_FIELD####==null || select.####PAGE_FIELD####<1){
-                        throw new RuntimeException("字段'####PAGE_FIELD####'的值不能小于1，这个字段是Integer类型，在这里也不能是空的。");
+                                if(select.##PAGE_FIELD##==null || select.##PAGE_FIELD##<1){
+                        throw new RuntimeException("字段'##PAGE_FIELD##'的值不能小于1，这个字段是Integer类型，在这里也不能是空的。");
                     }
-                    if(select.####PAGE_SIZE_FIELD####==null || select.####PAGE_SIZE_FIELD####<1 || select.####PAGE_SIZE_FIELD####>20){
-                        throw new RuntimeException("字段'####PAGE_SIZE_FIELD####'的值不能小于1，并且不能大于20，这个字段是Integer类型，在这里也不能是空的。");
+                    if(select.##PAGE_SIZE_FIELD##==null || select.##PAGE_SIZE_FIELD##<1 || select.##PAGE_SIZE_FIELD##>20){
+                        throw new RuntimeException("字段'##PAGE_SIZE_FIELD##'的值不能小于1，并且不能大于20，这个字段是Integer类型，在这里也不能是空的。");
                     }
-                    var query=new LambdaQueryWrapper<####CLASS_NAME####>();
-                    """.Replace("####CLASS_NAME####", className)
-                .Replace("####PAGE_FIELD####", project.PageFieldName)
-                .Replace("####PAGE_SIZE_FIELD####", project.PageSizeFieldName));
+                    var query=new LambdaQueryWrapper<##CLASS_NAME##>();
+                    """.Replace("##CLASS_NAME##", className)
+                .Replace("##PAGE_FIELD##", project.PageFieldName)
+                .Replace("##PAGE_SIZE_FIELD##", project.PageSizeFieldName));
             stream.Write(selectBody);
-            stream.Write("return onHandleSelectAfter(page(new Page<>(select.####PAGE_FIELD####,select.####PAGE_SIZE_FIELD####),this.onHandleSelectBefore(query)));\n}\n"
-                .Replace("####PAGE_FIELD####", project.PageFieldName)
-                .Replace("####PAGE_SIZE_FIELD####", project.PageSizeFieldName)
-            );
+            stream.Write("""
+                var result=page(new Page<>(select.page, select.pageSize), this.onHandleSelectBefore(query));
+                var dynamicResult=new Page<##CLASS_NAME##Dynamic>();
+                dynamicResult.setSize(result.getSize());
+                dynamicResult.setPages(result.getPages());
+                dynamicResult.setCurrent(result.getCurrent());
+                dynamicResult.setTotal(result.getTotal());
+                var dynamicObjects=new ArrayList<##CLASS_NAME##Dynamic>(result.getRecords().size());
+                for (##CLASS_NAME## record : result.getRecords()) {
+                    dynamicObjects.add(new ##CLASS_NAME##Dynamic(record));
+                }
+                dynamicResult.setRecords(dynamicObjects);
+                return onHandleSelectAfter(dynamicResult);
+                }
+                """.Replace("##CLASS_NAME##", className));
             // =============================================
             // save方法
             // =============================================
-            stream.Write("\nprotected static class ####CLASS_NAME####_Save {\n".Replace("####CLASS_NAME####", className) + saveClassFields + "\npublic void checkLegality(){\n" + saveMethodFieldCheck + "\n}\n}\n");
+            stream.Write("\nprotected static class ##CLASS_NAME##_Save {\n".Replace("##CLASS_NAME##", className) + saveClassFields + "\npublic void checkLegality(){\n" + saveMethodFieldCheck + "\n}\n}\n");
             stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之前的回调，这个返回结果将会被传入数据库save方法。**/\nprotected {className} onHandleSaveBefore({className} entity){{\n return entity;\n}}\n");
             stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之后的回调，这个返回结果将会直接返回给发起请求的客户端。**/\nprotected Object onHandleSaveAfter({className} entity){{\n return entity;\n}}\n");
-            stream.Write("\n@Transactional\n@PostMapping(\"template/save\")\n public Object save(@RequestBody ####CLASS_NAME####_Save save){\n".Replace("####CLASS_NAME####", className));
+            stream.Write("\n@Transactional\n@PostMapping(\"template/save\")\n public Object save(@RequestBody ##CLASS_NAME##_Save save){\n".Replace("##CLASS_NAME##", className));
             stream.Write("save.checkLegality();\n");
             stream.Write($"var object=create({saveCallCreateBody});\n");
             stream.Write($"return this.onHandleSaveAfter(saveEntity(this.onHandleSaveBefore(object)));\n");
