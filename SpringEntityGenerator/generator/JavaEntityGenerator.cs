@@ -39,7 +39,7 @@ namespace SpringEntityGenerator.generator
             var stream = new StreamWriter(File.Create(filePath + entityName));
             stream.Write(GetHeadStatementText());
             stream.Write("""
-                package ####PACKAGE_NAME####.entity;
+                package ##PACKAGE_NAME##.entity;
 
                 import com.baomidou.mybatisplus.annotation.IdType;
                 import com.baomidou.mybatisplus.annotation.TableField;
@@ -49,17 +49,18 @@ namespace SpringEntityGenerator.generator
                 import java.util.Arrays;
                 import java.util.Date;
                 import java.util.List;
+                import ##PACKAGE_NAME##.service.##CLASS_NAME##ServiceTemplate;
 
                 /**
-                  * ####CN_NAME####<br>####TABLE_COMMENT####
+                  * ##CN_NAME##<br>##TABLE_COMMENT##
                   */
-                @TableName("####TABLE_NAME####")
-                public class ####CLASS_NAME####{
-                """.Replace("####PACKAGE_NAME####", project.PackageName).
-                Replace("####CN_NAME####", project.Table.CnName).
-                Replace("####TABLE_NAME####", tableName).
-                Replace("####CLASS_NAME####", className).
-                Replace("####TABLE_COMMENT####", project.Table.Comment));
+                @TableName("##TABLE_NAME##")
+                public class ##CLASS_NAME##{
+                """.Replace("##PACKAGE_NAME##", project.PackageName).
+                Replace("##CN_NAME##", project.Table.CnName).
+                Replace("##TABLE_NAME##", tableName).
+                Replace("##CLASS_NAME##", className).
+                Replace("##TABLE_COMMENT##", project.Table.Comment));
             foreach (var field in project.Table.Columns)
             {
                 // 字段在数据库中的名称
@@ -88,15 +89,15 @@ namespace SpringEntityGenerator.generator
                         stream.Write("private " + field.ToJavaType() + " " + field.Name + ";\n");
                     }
                     // 写入get set
-                    stream.Write("public void set####FIELD_NOUN_NAME####(####TYPE#### value){ this.####FIELD_NAME#### = value; }\n"
-                        .Replace("####TYPE####", field.ToJavaType())
-                        .Replace("####FIELD_NOUN_NAME####", field.Name.First().ToString().ToUpper() + field.Name[1..])
-                        .Replace("####FIELD_NAME####", field.Name)
+                    stream.Write("public void set##FIELD_NOUN_NAME##(##TYPE## value){ this.##FIELD_NAME## = value; }\n"
+                        .Replace("##TYPE##", field.ToJavaType())
+                        .Replace("##FIELD_NOUN_NAME##", field.Name.First().ToString().ToUpper() + field.Name[1..])
+                        .Replace("##FIELD_NAME##", field.Name)
                     );
-                    stream.Write("public ####TYPE#### get####FIELD_NOUN_NAME####(){ return this.####FIELD_NAME####; }\n"
-                        .Replace("####TYPE####", field.ToJavaType())
-                        .Replace("####FIELD_NOUN_NAME####", field.Name.First().ToString().ToUpper() + field.Name[1..])
-                        .Replace("####FIELD_NAME####", field.Name)
+                    stream.Write("public ##TYPE## get##FIELD_NOUN_NAME##(){ return this.##FIELD_NAME##; }\n"
+                        .Replace("##TYPE##", field.ToJavaType())
+                        .Replace("##FIELD_NOUN_NAME##", field.Name.First().ToString().ToUpper() + field.Name[1..])
+                        .Replace("##FIELD_NAME##", field.Name)
                     );
                 }
             }
@@ -109,7 +110,7 @@ namespace SpringEntityGenerator.generator
                 /**
                  * 从另一个对象中复制相同字段的值
                  */
-                public static ####CLASS_NAME#### copy(####CLASS_NAME#### targetObject , Object object) {
+                public static ##CLASS_NAME## copy(##CLASS_NAME## targetObject , Object object) {
                     try {
                         Class<?> targetClass = targetObject.getClass();
                         Field[] targetFields = targetClass.getDeclaredFields();
@@ -135,11 +136,78 @@ namespace SpringEntityGenerator.generator
                 /**
                  * 根据其他对象的相同字段创建一个对象
                  */
-                public static ####CLASS_NAME#### create(Object object) {
-                    return copy(new ####CLASS_NAME####(),object);
+                public static ##CLASS_NAME## create(Object object) {
+                    return copy(new ##CLASS_NAME##(),object);
                 }
 
-                """.Replace("####CLASS_NAME####", className));
+                """.Replace("##CLASS_NAME##", className));
+
+            // =========================================
+            //             写入 service的state引用
+            // =========================================
+            stream.Write("""
+
+                private static ##CLASS_NAME##ServiceTemplate _serviceTemplate;
+
+
+                public ##CLASS_NAME##ServiceTemplate getServiceTemplate() {
+                    if (_serviceTemplate == null) {
+                        try {
+                            var constructor = ##CLASS_NAME##ServiceTemplate.class.getConstructor();
+                            _serviceTemplate = constructor.newInstance();
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    return _serviceTemplate;
+                }
+
+                """.Replace("##CLASS_NAME##", className));
+
+            // ===============================================================
+            //             写入 insert、save、update的方法实现
+            // ===============================================================
+            stream.Write("""
+
+                /**
+                 * 保存当前对象
+                 */
+                public void save() {
+                    if (id == null) {
+                        insert();
+                    }else{
+                        update();
+                    }
+                }
+
+
+                /**
+                 * 插入当前对象，并更新当前对象的id
+                 */
+                public void insert() {
+                    if (id != null) {
+                        throw new RuntimeException("无法对已经拥有主键id的数据执行插入操作。");
+                    }
+                    if (_serviceTemplate == null) {
+                        getServiceTemplate();
+                    }
+                    this.id = _serviceTemplate.saveEntity(this).id;
+                }
+
+                /**
+                 * 更新当前对象
+                 */
+                public void update() {
+                    if (id == null) {
+                        throw new RuntimeException("无法对已经没有主键id的数据执行更新操作。");
+                    }
+                    if (_serviceTemplate == null) {
+                        getServiceTemplate();
+                    }
+                    _serviceTemplate.updateById(this);
+                }
+
+                """.Replace("##CLASS_NAME##", className));
 
             stream.Write("}");
             stream.Close();
