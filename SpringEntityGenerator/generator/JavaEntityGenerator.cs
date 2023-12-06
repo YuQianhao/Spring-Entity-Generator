@@ -150,7 +150,7 @@ namespace SpringEntityGenerator.generator
                 private static ##CLASS_NAME##ServiceTemplate _serviceTemplate;
 
 
-                public ##CLASS_NAME##ServiceTemplate getServiceTemplate() {
+                public static ##CLASS_NAME##ServiceTemplate getServiceTemplate() {
                     if (_serviceTemplate == null) {
                         try {
                             var constructor = ##CLASS_NAME##ServiceTemplate.class.getConstructor();
@@ -188,10 +188,7 @@ namespace SpringEntityGenerator.generator
                     if (id != null) {
                         throw new RuntimeException("无法对已经拥有主键id的数据执行插入操作。");
                     }
-                    if (_serviceTemplate == null) {
-                        getServiceTemplate();
-                    }
-                    this.id = _serviceTemplate.saveEntity(this).id;
+                    this.id = getServiceTemplate().saveEntity(this).id;
                 }
 
                 /**
@@ -201,10 +198,14 @@ namespace SpringEntityGenerator.generator
                     if (id == null) {
                         throw new RuntimeException("无法对已经没有主键id的数据执行更新操作。");
                     }
-                    if (_serviceTemplate == null) {
-                        getServiceTemplate();
-                    }
-                    _serviceTemplate.updateById(this);
+                    getServiceTemplate().updateById(this);
+                }
+
+                /**
+                 * 获取Operator操作对象
+                 */
+                public static ##CLASS_NAME##ServiceTemplate.##CLASS_NAME##Operator operator() {
+                    return new ##CLASS_NAME##ServiceTemplate.##CLASS_NAME##Operator(getServiceTemplate().getBaseMapper());
                 }
 
                 """.Replace("##CLASS_NAME##", className));

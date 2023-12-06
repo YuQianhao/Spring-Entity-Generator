@@ -8,6 +8,10 @@
 
 ## 日志
 
+[2023年12月6日]
+
+1、在生成的``Entity``模板中增加了直接获取对应``ServiceTemplate``的方法，并且增加了``insert()、update()、save()``三个方法，增加了``operator()``方法来获取对应的数据库操作对象。
+
 [2023年11月23日]
 
 1、在生成的``Controller``模板中增加了``对应类型的Dynamic``类型，这个类型将作为``select``和``getEntity``的返回值类型，``Dynamic``能够将聚合的类型拆散为``Map``，方便修改返回值的字段，并且能够将拆散后的Map重新组装回``Company``。
