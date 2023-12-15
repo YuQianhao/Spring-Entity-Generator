@@ -8,6 +8,10 @@
 
 ## 日志
 
+[2023年12月15日]
+
+1、将生成的``Controller``和``Service``模板全部移动到对应的目录下的二级目录``template``中。例如``controller/TestController.java``变更为``controller/template/TestController.java``。
+
 [2023年12月6日]
 
 1、在生成的``Entity``模板中增加了直接获取对应``ServiceTemplate``的方法，并且增加了``insert()、update()、save()``三个方法，增加了``operator()``方法来获取对应的数据库操作对象。

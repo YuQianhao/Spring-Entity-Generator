@@ -49,7 +49,7 @@ namespace SpringEntityGenerator.generator
                 import java.util.Arrays;
                 import java.util.Date;
                 import java.util.List;
-                import ##PACKAGE_NAME##.service.##CLASS_NAME##ServiceTemplate;
+                import ##PACKAGE_NAME##.service.template.##CLASS_NAME##ServiceTemplate;
 
                 /**
                   * ##CN_NAME##<br>##TABLE_COMMENT##

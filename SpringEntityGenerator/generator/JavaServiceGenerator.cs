@@ -12,7 +12,7 @@ namespace SpringEntityGenerator.generator
     {
         public override void Generator(Project project)
         {
-            var filePath = project.Path + "\\src\\main\\java\\" + project.PackageName.Replace(".", "\\") + "\\service\\";
+            var filePath = project.Path + "\\src\\main\\java\\" + project.PackageName.Replace(".", "\\") + "\\service\\template\\";
             var className = $"{project.Table.Name.First().ToString().ToUpper() + project.Table.Name[1..]}";
             var mapperName = $"{className}ServiceTemplate.java";
             // 检查是否需要备份
@@ -34,7 +34,7 @@ namespace SpringEntityGenerator.generator
             var stream = new StreamWriter(File.Create(filePath + mapperName));
             stream.Write(GetHeadStatementText());
             stream.Write("""
-                package ####PACKAGE_NAME####.service;
+                package ####PACKAGE_NAME####.service.template;
 
                 import com.baomidou.mybatisplus.core.metadata.IPage;
                 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;

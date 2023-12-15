@@ -14,7 +14,7 @@ namespace SpringEntityGenerator.generator
         public override void Generator(Project project)
         {
             // controller文件的写出路径
-            var filePath = project.Path + "\\src\\main\\java\\" + project.PackageName.Replace(".", "\\") + "\\controller\\";
+            var filePath = project.Path + "\\src\\main\\java\\" + project.PackageName.Replace(".", "\\") + "\\controller\\template\\";
             // 类名
             var className = $"{project.Table.Name.First().ToString().ToUpper() + project.Table.Name[1..]}";
             // 使用的mapper名称
@@ -41,7 +41,7 @@ namespace SpringEntityGenerator.generator
             var stream = new StreamWriter(File.Create(filePath + mapperName));
             stream.Write(GetHeadStatementText());
             stream.Write("""
-                package ##PACKAGE_NAME##.controller;
+                package ##PACKAGE_NAME##.controller.template;
 
                 import java.util.*;
                 import java.lang.reflect.Field;
@@ -50,7 +50,7 @@ namespace SpringEntityGenerator.generator
                 import ##PACKAGE_NAME##.entity.##CLASS_NAME##;
                 import org.springframework.web.bind.annotation.PostMapping;
                 import org.springframework.web.bind.annotation.RequestBody;
-                import ##PACKAGE_NAME##.service.##CLASS_NAME##ServiceTemplate;
+                import ##PACKAGE_NAME##.service.template.##CLASS_NAME##ServiceTemplate;
                 import com.baomidou.mybatisplus.core.metadata.IPage;
                 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
                 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
