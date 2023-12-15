@@ -18,6 +18,8 @@
 
 4、将生成的``Dynamic``数据结构调整为``public``。
 
+5、将生成的``Dynamic``数据结构从``Controller模板``移动到了``Service模板``中。
+
 [2023年12月6日]
 
 1、在生成的``Entity``模板中增加了直接获取对应``ServiceTemplate``的方法，并且增加了``insert()、update()、save()``三个方法，增加了``operator()``方法来获取对应的数据库操作对象。

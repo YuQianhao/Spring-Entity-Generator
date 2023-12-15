@@ -43,17 +43,79 @@ namespace SpringEntityGenerator.generator
                 import ####PACKAGE_NAME####.mapper.####CLASS_NAME####Mapper;
                 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
                 import java.util.List;
+                import java.lang.reflect.Field;
                 import java.lang.RuntimeException;
                 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
                 import org.jetbrains.annotations.NotNull;
                 import org.springframework.stereotype.Service;
-                import java.util.Date;
+                import java.util.*;
                 import java.util.function.Consumer;
 
                 @Service
                 public class ####CLASS_NAME####ServiceTemplate extends ServiceImpl<####CLASS_NAME####Mapper, ####CLASS_NAME####> {
                 """.Replace("####CLASS_NAME####", className).Replace("####PACKAGE_NAME####", project.PackageName)
             );
+            // =============================================
+            // 创建动态类型，提供给select方法和getEntity方法使用
+            // =============================================
+            stream.Write("""
+
+                /**
+                 * 内置构建的动态类型，这个类型可以在数据结构固有字段的基础上，额外进行一些修改
+                 */
+                public static class ##CLASS_NAME##Dynamic extends HashMap<String, Object> {
+
+                    public ##CLASS_NAME##Dynamic(##CLASS_NAME## entity) {
+                        var classType = entity.getClass();
+                        try {
+                            for (Field field : classType.getDeclaredFields()) {
+                                if(field.getName().startsWith("_$tp_")){
+                                    continue;
+                                }
+                                field.setAccessible(true);
+                                add(field.getName(), field.get(entity));
+                            }
+                        } catch (Exception e) {
+                            throw new RuntimeException("类型" + classType.getName() + "无法被创建成为" + getClass().getName() + "，在创建字段时发生错误。" + e.getMessage());
+                        }
+                    }
+
+                    public static List<##CLASS_NAME##Dynamic> formatList(List<##CLASS_NAME##> itemList){
+                        var result=new ArrayList<##CLASS_NAME##Dynamic>(itemList.size());
+                        for (##CLASS_NAME## item : itemList) {
+                            result.add(new ##CLASS_NAME##Dynamic(item));
+                        }
+                        return result;
+                    }
+
+                    public ##CLASS_NAME##Dynamic add(String key, Object value) {
+                        remove(key);
+                        put(key, value);
+                        return this;
+                    }
+
+                    public ##CLASS_NAME## to##CLASS_NAME##() {
+                        try {
+                            var entity = new ##CLASS_NAME##();
+                            var classType = entity.getClass();
+                            var fields = classType.getDeclaredFields();
+                            for (String key : keySet()) {
+                                var fieldOptional = Arrays.stream(fields).filter(item -> item.getName().equals(key)).findFirst();
+                                if (fieldOptional.isPresent()) {
+                                    var field = fieldOptional.get();
+                                    field.setAccessible(true);
+                                    field.set(entity, get(key));
+                                }
+                            }
+                            return entity;
+                        } catch (Exception e) {
+                            throw new RuntimeException("将##CLASS_NAME##Dynamic转换成##CLASS_NAME##时发生错误。" + e.getMessage());
+                        }
+                    }
+
+                }
+
+                """.Replace("##CLASS_NAME##", className));
             // ===================================
             // 增加Create方法
             // ===================================
