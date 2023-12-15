@@ -203,7 +203,7 @@ namespace SpringEntityGenerator.generator
                 /**
                  * 内置构建的动态类型，这个类型可以在数据结构固有字段的基础上，额外进行一些修改
                  */
-                protected static class ##CLASS_NAME##Dynamic extends HashMap<String, Object> {
+                public static class ##CLASS_NAME##Dynamic extends HashMap<String, Object> {
 
                     public ##CLASS_NAME##Dynamic(##CLASS_NAME## entity) {
                         var classType = entity.getClass();
