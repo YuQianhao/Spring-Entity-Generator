@@ -209,6 +209,9 @@ namespace SpringEntityGenerator.generator
                         var classType = entity.getClass();
                         try {
                             for (Field field : classType.getDeclaredFields()) {
+                                if(field.getName().startsWith("_$tp_")){
+                                    continue;
+                                }
                                 field.setAccessible(true);
                                 add(field.getName(), field.get(entity));
                             }

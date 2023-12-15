@@ -147,19 +147,19 @@ namespace SpringEntityGenerator.generator
             // =========================================
             stream.Write("""
 
-                private static ##CLASS_NAME##ServiceTemplate _serviceTemplate;
+                private static ##CLASS_NAME##ServiceTemplate _$tp_serviceTemplate;
 
 
                 public static ##CLASS_NAME##ServiceTemplate getServiceTemplate() {
-                    if (_serviceTemplate == null) {
+                    if (_$tp_serviceTemplate == null) {
                         try {
                             var constructor = ##CLASS_NAME##ServiceTemplate.class.getConstructor();
-                            _serviceTemplate = constructor.newInstance();
+                            _$tp_serviceTemplate = constructor.newInstance();
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
                     }
-                    return _serviceTemplate;
+                    return _$tp_serviceTemplate;
                 }
 
                 """.Replace("##CLASS_NAME##", className));
