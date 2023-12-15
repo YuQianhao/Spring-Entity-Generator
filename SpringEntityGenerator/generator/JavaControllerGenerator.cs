@@ -217,6 +217,14 @@ namespace SpringEntityGenerator.generator
                         }
                     }
 
+                    public static List<##CLASS_NAME##Dynamic> formatList(List<##CLASS_NAME##> itemList){
+                        var result=new ArrayList<##CLASS_NAME##Dynamic>(itemList.size());
+                        for (##CLASS_NAME## item : itemList) {
+                            result.add(new ##CLASS_NAME##Dynamic(item));
+                        }
+                        return result;
+                    }
+
                     public ##CLASS_NAME##Dynamic add(String key, Object value) {
                         remove(key);
                         put(key, value);
