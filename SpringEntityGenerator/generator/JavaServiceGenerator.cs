@@ -65,7 +65,10 @@ namespace SpringEntityGenerator.generator
                  */
                 public static class ##CLASS_NAME##Dynamic extends HashMap<String, Object> {
 
+                    private ##CLASS_NAME## _object;
+
                     public ##CLASS_NAME##Dynamic(##CLASS_NAME## entity) {
+                        _object=entity;
                         var classType = entity.getClass();
                         try {
                             for (Field field : classType.getDeclaredFields()) {
@@ -78,6 +81,14 @@ namespace SpringEntityGenerator.generator
                         } catch (Exception e) {
                             throw new RuntimeException("类型" + classType.getName() + "无法被创建成为" + getClass().getName() + "，在创建字段时发生错误。" + e.getMessage());
                         }
+                    }
+
+                    /**
+                     * 获取最后一次生成的菜单引用<br/>
+                     * 该方法不会调用反射创建对象，而是将最后一次生成的对象引用返回
+                     */
+                    public ##CLASS_NAME## getReference##CLASS_NAME##(){
+                        return _object;
                     }
 
                     public static List<##CLASS_NAME##Dynamic> formatList(List<##CLASS_NAME##> itemList){
@@ -107,6 +118,7 @@ namespace SpringEntityGenerator.generator
                                     field.set(entity, get(key));
                                 }
                             }
+                            _object=entity;
                             return entity;
                         } catch (Exception e) {
                             throw new RuntimeException("将##CLASS_NAME##Dynamic转换成##CLASS_NAME##时发生错误。" + e.getMessage());
