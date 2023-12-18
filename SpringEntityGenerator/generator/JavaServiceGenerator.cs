@@ -58,6 +58,45 @@ namespace SpringEntityGenerator.generator
             // =============================================
             // 创建动态类型，提供给select方法和getEntity方法使用
             // =============================================
+
+            // 创建动态类型之前，需要将这个数据结构的属性解包，创建相应的get，set，remove方法
+            var dynamicStructInlineMethod = new StringBuilder() ;
+            foreach(var field in project.Table.Columns)
+            {
+
+                dynamicStructInlineMethod.Append("""
+
+                        /**
+                         * 修改字段##FIELD_NAME##的值
+                         */    
+                        public ##CLASS_NAME##Dynamic set##FIRST_BIG_FIELD_NAME##(Object value){
+                            set("##FIELD_NAME##",value);
+                            return this;
+                        }
+
+
+                        /**
+                         * 获取字段##FIELD_NAME##的值
+                         */ 
+                        public Object get##FIRST_BIG_FIELD_NAME##(){
+                            return get("##FIELD_NAME##");
+                        }
+
+                        /**
+                         * 删除字段##FIELD_NAME##
+                         */ 
+                        public ##CLASS_NAME##Dynamic remove##FIRST_BIG_FIELD_NAME##(){
+                        
+                            remove("##FIELD_NAME##");
+                            return this;
+                        }
+
+                    """.Replace("##CLASS_NAME##", className)
+                    .Replace("##FIRST_BIG_FIELD_NAME##", char.ToUpper(field.Name[0])+ field.Name.Substring(1))
+                    .Replace("##FIELD_NAME##", field.Name)
+                    );
+
+            }
             stream.Write("""
 
                 /**
@@ -83,6 +122,8 @@ namespace SpringEntityGenerator.generator
                         }
                     }
 
+                    ##INLINE_FIELD_METHOD##
+
                     /**
                      * 获取最后一次生成的菜单引用<br/>
                      * 该方法不会调用反射创建对象，而是将最后一次生成的对象引用返回
@@ -91,6 +132,20 @@ namespace SpringEntityGenerator.generator
                         return _object;
                     }
 
+                    /**
+                     * 修改值
+                     */
+                    public ##CLASS_NAME##Dynamic set(String fieldName,Object value){
+                    
+                        remove(fieldName);
+                        put(fieldName,value);
+                        return this;
+
+                    }
+                    
+                    /**
+                     * 将多个对象转换成Dynamic
+                     */
                     public static List<##CLASS_NAME##Dynamic> formatList(List<##CLASS_NAME##> itemList){
                         var result=new ArrayList<##CLASS_NAME##Dynamic>(itemList.size());
                         for (##CLASS_NAME## item : itemList) {
@@ -105,6 +160,9 @@ namespace SpringEntityGenerator.generator
                         return this;
                     }
 
+                    /**
+                     * 根据属性重新生成一个对象<br/>注意，这个方法将通过反射的方式创建对象
+                     */
                     public ##CLASS_NAME## to##CLASS_NAME##() {
                         try {
                             var entity = new ##CLASS_NAME##();
@@ -127,7 +185,8 @@ namespace SpringEntityGenerator.generator
 
                 }
 
-                """.Replace("##CLASS_NAME##", className));
+                """.Replace("##CLASS_NAME##", className)
+                .Replace("##INLINE_FIELD_METHOD##",dynamicStructInlineMethod.ToString()));
             // ===================================
             // 增加Create方法
             // ===================================

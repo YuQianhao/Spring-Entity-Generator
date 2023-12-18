@@ -8,6 +8,10 @@
 
 ## 日志
 
+[2023年12月18日]
+
+1、优化了生成的``Dynamic``数据结构。
+
 [2023年12月15日]
 
 1、将生成的``Controller``和``Service``模板全部移动到对应的目录下的二级目录``template``中。例如``controller/TestController.java``变更为``controller/template/TestController.java``。
