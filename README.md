@@ -12,6 +12,8 @@
 
 1、为``ControllerTemplate``中生成的``Select``方法查询参数，生成了更加细致的控制方法，为每一个参与查询的字段都生成了``Handle``方法，供给重载使用。
 
+2、将``ControllerTemplate``中的``select``方法模板参数变更为``Map<String,Object>``，并将这个参数传入了``onHandleSelectBefor``中，可以让接口实现者更自由的控制请求参数和查询结果，原``select``方法业务不会因此而改变，生成的``SelectClass``会通过``Map``参数自动创建。
+
 [2023年12月18日]
 
 1、优化了生成的``Dynamic``数据结构。

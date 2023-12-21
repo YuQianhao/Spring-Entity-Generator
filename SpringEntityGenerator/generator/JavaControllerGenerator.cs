@@ -330,10 +330,40 @@ namespace SpringEntityGenerator.generator
             stream.Write(selectParamsHandleMethod);
 
             selectClassFields.Append($"public Integer {project.PageFieldName};\npublic Integer {project.PageSizeFieldName};\n");
-            stream.Write($"\nprotected static class ##CLASS_NAME##_Select {{\n{selectClassFields} \n}}\n".Replace("##CLASS_NAME##", className));
+
+            // 生成Select格式化后的查询参数类
+            stream.Write("""
+
+                protected static class ##CLASS_NAME##_Select{
+                
+                    ##SELECT_CLASS_FIELDS##
+
+
+                    public ##CLASS_NAME##_Select(Map<String,Object> params){
+                    
+                        var selectClass=getClass();
+                        var fields=selectClass.getDeclaredFields();
+                        for(var field : fields){
+                            if(params.containsKey(field.getName())){
+                                field.setAccessible(true);
+                                try {
+                                    field.set(this,params.get(field.getName()));
+                                } catch (IllegalAccessException e) {
+                                    throw new RuntimeException("无法将ResponseBody转换为目标查询参数，字段"+field.getName()+"无法按照预期转换。"+e.getMessage());
+                                }
+                            }
+                        }
+                        
+                    }
+
+                }
+
+                """.Replace("##SELECT_CLASS_FIELDS##", selectClassFields.ToString())
+                .Replace("##CLASS_NAME##", className)
+                );
             stream.Write("""
                     /* 重写这个方法可以处理select接口在创建完查询条件之后的回调，这个返回结果将会被传入分页查询的方法。**/
-                    protected LambdaQueryWrapper<##CLASS_NAME##> onHandleSelectBefore(##CLASS_NAME##_Select select , LambdaQueryWrapper<##CLASS_NAME##> queryWrapper){
+                    protected LambdaQueryWrapper<##CLASS_NAME##> onHandleSelectBefore(##CLASS_NAME##_Select select , Map<String,Object> params , LambdaQueryWrapper<##CLASS_NAME##> queryWrapper){
                      return queryWrapper;
                     }
                     /* 重写这个方法可以处理select接口分页查询之后的结果，这个返回结果将会直接返回给发起请求的客户端。**/
@@ -342,9 +372,10 @@ namespace SpringEntityGenerator.generator
                     }
                     """.Replace("##CLASS_NAME##", className));
 
-            stream.Write("\n@PostMapping(\"template/select\")\n    public Object select(@RequestBody ##CLASS_NAME##_Select select){\n".Replace("##CLASS_NAME##", className));
+            stream.Write("\n@PostMapping(\"template/select\")\n    public Object select(@RequestBody Map<String,Object> params){\n");
             stream.Write("""
-                                if(select.##PAGE_FIELD##==null || select.##PAGE_FIELD##<1){
+                    var select=new AdminUser_Select(params);
+                    if(select.##PAGE_FIELD##==null || select.##PAGE_FIELD##<1){
                         throw new RuntimeException("字段'##PAGE_FIELD##'的值不能小于1，这个字段是Integer类型，在这里也不能是空的。");
                     }
                     if(select.##PAGE_SIZE_FIELD##==null || select.##PAGE_SIZE_FIELD##<1 || select.##PAGE_SIZE_FIELD##>20){
@@ -356,7 +387,7 @@ namespace SpringEntityGenerator.generator
                 .Replace("##PAGE_SIZE_FIELD##", project.PageSizeFieldName));
             stream.Write(selectBody);
             stream.Write("""
-                var result=page(new Page<>(select.page, select.pageSize), this.onHandleSelectBefore(select,query));
+                var result=page(new Page<>(select.page, select.pageSize), this.onHandleSelectBefore(select,params,query));
                 var dynamicResult=new Page<##CLASS_NAME##Dynamic>();
                 dynamicResult.setSize(result.getSize());
                 dynamicResult.setPages(result.getPages());
