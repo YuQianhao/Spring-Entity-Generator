@@ -61,16 +61,28 @@ namespace SpringEntityGenerator.generator
 
             // Save类的字段
             var saveClassFields = new StringBuilder();
+
             // save方法的字段检查
             var saveMethodFieldCheck = new StringBuilder();
+
             // save方法调用服务的create方法参数列表
             var saveCallCreateBody = new StringBuilder();
+
             // Select类的字段
             var selectClassFields = new StringBuilder();
+
+            // 在select方法中，每个查询条件的Handle方法
+            var selectParamsHandleMethod = new StringBuilder();
+
             // select字段拼接查询参数
             var selectBody = new StringBuilder();
+
             foreach (var field in project.Table.Columns)
             {
+
+                // 字段首字母大写的名称
+                var fieldBigName = field.Name.First().ToString().ToUpper() + field.Name[1..];
+
                 saveCallCreateBody.Append("");
                 if (field.Key || field.SaveParameter)
                 {
@@ -83,53 +95,110 @@ namespace SpringEntityGenerator.generator
                 saveCallCreateBody.Append(",");
                 if (field.Select)
                 {
+
+                    // 查询条件Handle方法名称
+                    var selectParamsHandleName = "onHandleSelectParams##FIELD_BIG_NAME##".Replace("##FIELD_BIG_NAME##", fieldBigName);
+
+                    // 先为select方法的查询条件生成Handle方法体
+                    if (field.SelectRange)
+                    {
+                        // 字段范围查询
+                        selectParamsHandleMethod.Append("""
+
+                        // 重写这个方法，可以修改查询参数"##FIELD_NAME##"的查询步骤
+                        protected void ##METHOD_NAME##(##CLASS_NAME##_Select select,##FIELD_JAVA_TYPE## ##FIELD_NAME##Start,##FIELD_JAVA_TYPE## ##FIELD_NAME##End,LambdaQueryWrapper<##CLASS_NAME##> query){
+                            ##SELECT_LOGIC##
+                        }
+
+                        """.Replace("##FIELD_BIG_NAME##", fieldBigName)
+                        .Replace("##CLASS_NAME##", className)
+                        .Replace("##FIELD_JAVA_TYPE##", field.ToJavaType())
+                        .Replace("##FIELD_NAME##", field.Name)
+                        .Replace("##METHOD_NAME##", selectParamsHandleName)
+                        );
+                    }
+                    else
+                    {
+                        // 字段非范围查询
+                        selectParamsHandleMethod.Append("""
+
+                        // 重写这个方法，可以修改查询参数"##FIELD_NAME##"的查询步骤
+                        protected void ##METHOD_NAME##(##CLASS_NAME##_Select select,##FIELD_JAVA_TYPE## ##FIELD_NAME##,LambdaQueryWrapper<##CLASS_NAME##> query){
+                            ##SELECT_LOGIC##
+                        }
+
+                        """.Replace("##FIELD_BIG_NAME##", fieldBigName)
+                        .Replace("##CLASS_NAME##", className)
+                        .Replace("##FIELD_JAVA_TYPE##", field.ToJavaType())
+                        .Replace("##FIELD_NAME##", field.Name)
+                        .Replace("##METHOD_NAME##", selectParamsHandleName)
+                        );
+                    }
+
+                    // 参与查询的字段
+                    string selecParamsName;
+
+                    // 具体的查询业务
+                    var selectLogic = new StringBuilder();
+
+                    // 生成查询字段
                     if (field.SelectRange)
                     {
                         selectClassFields.Append("public " + field.ToJavaType() + " " + field.Name + "Start;\n");
                         selectClassFields.Append("public " + field.ToJavaType() + " " + field.Name + "End;\n");
+                        selecParamsName = $"select.{field.Name}Start,select.{field.Name}End";
                     }
                     else
                     {
                         selectClassFields.Append("public " + field.ToJavaType() + " " + field.Name + ";\n");
+                        selecParamsName = $"select.{field.Name}";
                     }
+
+                    // 生成查询业务
                     if (field.SelectEqual)
                     {
                         if (field.IsTextType())
                         {
-                            selectBody.Append($"if(select.{field.Name}!=null && !select.{field.Name}.isEmpty()){{\n");
+                            selectLogic.Append($"if({field.Name}!=null && !{field.Name}.isEmpty()){{\n");
                             if (field.SelectTextLike)
                             {
-                                selectBody.Append($"query.like({className}::get{field.Name.First().ToString().ToUpper() + field.Name[1..]},select.{field.Name});\n}}\n");
+                                selectLogic.Append($"query.like({className}::get{fieldBigName},{field.Name});\n}}\n");
                             }
                             else
                             {
-                                selectBody.Append($"query.eq({className}::get{field.Name.First().ToString().ToUpper() + field.Name[1..]},select.{field.Name});\n}}\n");
+                                selectLogic.Append($"query.eq({className}::get{fieldBigName},{field.Name});\n}}\n");
                             }
                         }
                         else
                         {
-                            selectBody.Append($"if(select.{field.Name}!=null){{\n");
-                            selectBody.Append($"query.eq({className}::get{field.Name.First().ToString().ToUpper() + field.Name[1..]},select.{field.Name});\n}}\n");
+                            selectLogic.Append($"if({field.Name}!=null){{\n");
+                            selectLogic.Append($"query.eq({className}::get{fieldBigName},{field.Name});\n}}\n");
                         }
                     }
                     else if (field.SelectRange)
                     {
                         if (field.IsTextType())
                         {
-                            selectBody.Append($"if(select.{field.Name}Start!=null && !select.{field.Name}Start.isEmpty()){{\n");
-                            selectBody.Append($"query.ge({className}::get{field.Name.First().ToString().ToUpper() + field.Name[1..]},select.{field.Name}Start);\n}}\n");
-                            selectBody.Append($"if(select.{field.Name}End!=null && !select.{field.Name}End.isEmpty()){{\n");
-                            selectBody.Append($"query.lt({className}::get{field.Name.First().ToString().ToUpper() + field.Name[1..]},select.{field.Name}End);\n}}\n");
+                            selectLogic.Append($"if({field.Name}Start!=null && !{field.Name}Start.isEmpty()){{\n");
+                            selectLogic.Append($"query.ge({className}::get{fieldBigName},{field.Name}Start);\n}}\n");
+                            selectLogic.Append($"if({field.Name}End!=null && !{field.Name}End.isEmpty()){{\n");
+                            selectLogic.Append($"query.lt({className}::get{fieldBigName},{field.Name}End);\n}}\n");
                         }
                         else
                         {
-                            selectBody.Append($"if(select.{field.Name}Start!=null){{\n");
-                            selectBody.Append($"query.ge({className}::get{field.Name.First().ToString().ToUpper() + field.Name[1..]},select.{field.Name}Start);\n}}\n");
-                            selectBody.Append($"if(select.{field.Name}End!=null){{\n");
-                            selectBody.Append($"query.lt({className}::get{field.Name.First().ToString().ToUpper() + field.Name[1..]},select.{field.Name}End);\n}}\n");
+                            selectLogic.Append($"if({field.Name}Start!=null){{\n");
+                            selectLogic.Append($"query.ge({className}::get{fieldBigName},{field.Name}Start);\n}}\n");
+                            selectLogic.Append($"if({field.Name}End!=null){{\n");
+                            selectLogic.Append($"query.lt({className}::get{fieldBigName},{field.Name}End);\n}}\n");
                         }
 
                     }
+
+                    // 将查询业务替换到查询参数Handle方法中
+                    selectParamsHandleMethod.Replace("##SELECT_LOGIC##", selectLogic.ToString());
+
+                    // 查询方法体中调用这个这个Handle方法
+                    selectBody.Append($"\n{selectParamsHandleName}(select,{selecParamsName},query);\n");
                 }
                 if (field.Key || field.SaveParameter)
                 {
@@ -195,7 +264,7 @@ namespace SpringEntityGenerator.generator
             }
 
 
-            
+
 
             stream.Write("""
                             protected static class ##CLASS_NAME##_OnlyId{
@@ -237,7 +306,7 @@ namespace SpringEntityGenerator.generator
                 protected Object onHandleRemoveAfter(##CLASS_NAME## object) {
                     throw new RuntimeException("没有找到“onHandleRemoveAfter”方法的实现。");
                 }
-                """.Replace("##CLASS_NAME##", className).Replace("##CN_CLASS_NAME##",project.Table.CnName));
+                """.Replace("##CLASS_NAME##", className).Replace("##CN_CLASS_NAME##", project.Table.CnName));
             stream.Write("""
                             @Transactional
                             @PostMapping("template/remove")
@@ -256,11 +325,15 @@ namespace SpringEntityGenerator.generator
             // =============================================
             // select方法
             // =============================================
+
+            // 写入每个参数的Handle方法
+            stream.Write(selectParamsHandleMethod);
+
             selectClassFields.Append($"public Integer {project.PageFieldName};\npublic Integer {project.PageSizeFieldName};\n");
             stream.Write($"\nprotected static class ##CLASS_NAME##_Select {{\n{selectClassFields} \n}}\n".Replace("##CLASS_NAME##", className));
             stream.Write("""
                     /* 重写这个方法可以处理select接口在创建完查询条件之后的回调，这个返回结果将会被传入分页查询的方法。**/
-                    protected LambdaQueryWrapper<##CLASS_NAME##> onHandleSelectBefore(LambdaQueryWrapper<##CLASS_NAME##> queryWrapper){
+                    protected LambdaQueryWrapper<##CLASS_NAME##> onHandleSelectBefore(##CLASS_NAME##_Select select , LambdaQueryWrapper<##CLASS_NAME##> queryWrapper){
                      return queryWrapper;
                     }
                     /* 重写这个方法可以处理select接口分页查询之后的结果，这个返回结果将会直接返回给发起请求的客户端。**/
@@ -283,7 +356,7 @@ namespace SpringEntityGenerator.generator
                 .Replace("##PAGE_SIZE_FIELD##", project.PageSizeFieldName));
             stream.Write(selectBody);
             stream.Write("""
-                var result=page(new Page<>(select.page, select.pageSize), this.onHandleSelectBefore(query));
+                var result=page(new Page<>(select.page, select.pageSize), this.onHandleSelectBefore(select,query));
                 var dynamicResult=new Page<##CLASS_NAME##Dynamic>();
                 dynamicResult.setSize(result.getSize());
                 dynamicResult.setPages(result.getPages());
