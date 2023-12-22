@@ -49,16 +49,40 @@ namespace SpringEntityGenerator.generator
                 import org.jetbrains.annotations.NotNull;
                 import org.springframework.stereotype.Service;
                 import java.util.*;
+                import jakarta.annotation.PostConstruct;
                 import java.util.function.Consumer;
 
                 @Service
                 public class ####CLASS_NAME####ServiceTemplate extends ServiceImpl<####CLASS_NAME####Mapper, ####CLASS_NAME####> {
                 """.Replace("####CLASS_NAME####", className).Replace("####PACKAGE_NAME####", project.PackageName)
             );
+
+            // 创建静态对象，用于在与ServiceTemplate无关联的业务中使用ServiceTemplate
+            stream.Write("""
+
+                private static ##CLASS_NAME##ServiceTemplate _$tp_instance=null;
+
+
+                @PostConstruct
+                private void _$_tp_init(){
+                    _$tp_instance=this;
+                }
+
+                /**
+                 * 获取ServiceTemplate
+                 */
+                public static ##CLASS_NAME##ServiceTemplate getInstance(){
+                    if(_$tp_instance==null){
+                        throw new RuntimeException(##CLASS_NAME##ServiceTemplate.class.getName()+"未在目标生命周期中初始化完成，无法使用，请确保主调函数在Spring初始化完成之后调用。");
+                    }
+                    return _$tp_instance;
+                }
+
+                """.Replace("##CLASS_NAME##",className));
+
             // =============================================
             // 创建动态类型，提供给select方法和getEntity方法使用
             // =============================================
-
             // 创建动态类型之前，需要将这个数据结构的属性解包，创建相应的get，set，remove方法
             var dynamicStructInlineMethod = new StringBuilder() ;
             foreach(var field in project.Table.Columns)
@@ -236,7 +260,10 @@ namespace SpringEntityGenerator.generator
             // ===================================
             stream.Write($"\npublic {className} save({saveMultipleParamsText})" + "{\n");
             stream.Write($"""
-                {className} object = getById({project.Table.Columns.Find(item => item.Key)?.Name});
+                {className} object = null;
+                if(id!=null){"{"}
+                    object=getById({project.Table.Columns.Find(item => item.Key)?.Name});
+                {"}"}
                 if(id!=null && object==null){"{"} 
                     throw new RuntimeException("要修改的{project.Table.CnName}数据对象不存在。");
                 {"}"}

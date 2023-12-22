@@ -153,8 +153,7 @@ namespace SpringEntityGenerator.generator
                 public static ##CLASS_NAME##ServiceTemplate getServiceTemplate() {
                     if (_$tp_serviceTemplate == null) {
                         try {
-                            var constructor = ##CLASS_NAME##ServiceTemplate.class.getConstructor();
-                            _$tp_serviceTemplate = constructor.newInstance();
+                            _$tp_serviceTemplate = ##CLASS_NAME##ServiceTemplate.getInstance();
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }

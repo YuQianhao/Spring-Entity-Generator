@@ -374,7 +374,7 @@ namespace SpringEntityGenerator.generator
 
             stream.Write("\n@PostMapping(\"template/select\")\n    public Object select(@RequestBody Map<String,Object> params){\n");
             stream.Write("""
-                    var select=new AdminUser_Select(params);
+                    var select=new ##CLASS_NAME##_Select(params);
                     if(select.##PAGE_FIELD##==null || select.##PAGE_FIELD##<1){
                         throw new RuntimeException("字段'##PAGE_FIELD##'的值不能小于1，这个字段是Integer类型，在这里也不能是空的。");
                     }
