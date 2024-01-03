@@ -8,6 +8,10 @@
 
 ## 日志
 
+[2024年1月3日]
+
+1、优化了``ServiceTemplate``。
+
 [2023年12月22日]
 
 1、修复``Entity``中``operator()``方法获取到的``ServiceTemplate``无法被调用的问题。

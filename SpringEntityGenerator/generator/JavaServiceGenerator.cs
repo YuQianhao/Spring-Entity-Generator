@@ -431,6 +431,20 @@ namespace SpringEntityGenerator.generator
                         this.baseMapper = baseMapper;
                     }
 
+                    @SafeVarargs
+                    public final ####CLASS_NAME####Operator onlyColumn(SFunction<Menu, ?>... columns){
+                        queryWrapper.select(columns);
+                        return this;
+                    }
+
+                    /**
+                     * 在末尾拼接SQL语句
+                     */
+                    public ####CLASS_NAME####Operator lastSql(String sql){
+                        queryWrapper.last(sql);
+                        return this;
+                    }
+
                     public ####CLASS_NAME####Operator and(Consumer<LambdaQueryWrapper<####CLASS_NAME####>> consumer){
                         queryWrapper.and(consumer);
                         return this;
