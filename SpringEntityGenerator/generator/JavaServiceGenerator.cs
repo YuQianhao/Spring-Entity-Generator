@@ -34,13 +34,13 @@ namespace SpringEntityGenerator.generator
             var stream = new StreamWriter(File.Create(filePath + mapperName));
             stream.Write(GetHeadStatementText());
             stream.Write("""
-                package ####PACKAGE_NAME####.service.template;
+                package ##PACKAGE_NAME##.service.template;
 
                 import com.baomidou.mybatisplus.core.metadata.IPage;
                 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
                 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-                import ####PACKAGE_NAME####.entity.####CLASS_NAME####;
-                import ####PACKAGE_NAME####.mapper.####CLASS_NAME####Mapper;
+                import ##PACKAGE_NAME##.entity.##CLASS_NAME##;
+                import ##PACKAGE_NAME##.mapper.##CLASS_NAME##Mapper;
                 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
                 import java.util.List;
                 import java.lang.reflect.Field;
@@ -53,8 +53,8 @@ namespace SpringEntityGenerator.generator
                 import java.util.function.Consumer;
 
                 @Service
-                public class ####CLASS_NAME####ServiceTemplate extends ServiceImpl<####CLASS_NAME####Mapper, ####CLASS_NAME####> {
-                """.Replace("####CLASS_NAME####", className).Replace("####PACKAGE_NAME####", project.PackageName)
+                public class ##CLASS_NAME##ServiceTemplate extends ServiceImpl<##CLASS_NAME##Mapper, ##CLASS_NAME##> {
+                """.Replace("##CLASS_NAME##", className).Replace("##PACKAGE_NAME##", project.PackageName)
             );
 
             // 创建静态对象，用于在与ServiceTemplate无关联的业务中使用ServiceTemplate
@@ -326,69 +326,69 @@ namespace SpringEntityGenerator.generator
                 }
                 // getOneEqual方法
                 stream.Write("""
-                                    public ####CLASSNAME#### getOneEqual(####PARAMS####) {
-                        return getOne(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
+                                    public ##CLASSNAME## getOneEqual(##PARAMS##) {
+                        return getOne(new LambdaQueryWrapper<##CLASSNAME##>()##CONDITION##);
                     }
-                    """.Replace("####PARAMS####", functionParams.ToString())
-                    .Replace("####CLASSNAME####", className)
-                    .Replace("####CONDITION####", conditionText.ToString()));
+                    """.Replace("##PARAMS##", functionParams.ToString())
+                    .Replace("##CLASSNAME##", className)
+                    .Replace("##CONDITION##", conditionText.ToString()));
                 stream.Write("\n");
                 // getOneEqualNotNull方法
                 stream.Write("""
-                                    public ####CLASSNAME#### getOneEqualNotNull(####PARAMS####) {
-                        var _value=getOne(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
+                                    public ##CLASSNAME## getOneEqualNotNull(##PARAMS##) {
+                        var _value=getOne(new LambdaQueryWrapper<##CLASSNAME##>()##CONDITION##);
                         if(_value==null){
-                            throw new RuntimeException("要查询的“####CN_CLASSNAME####”对象不存在。");
+                            throw new RuntimeException("要查询的“##CN_CLASSNAME##”对象不存在。");
                         }
                         return _value;
                     }
-                    """.Replace("####PARAMS####", functionParams.ToString())
-                    .Replace("####CLASSNAME####", className)
-                    .Replace("####CN_CLASSNAME####", project.Table.CnName)
-                    .Replace("####CONDITION####", conditionText.ToString()));
+                    """.Replace("##PARAMS##", functionParams.ToString())
+                    .Replace("##CLASSNAME##", className)
+                    .Replace("##CN_CLASSNAME##", project.Table.CnName)
+                    .Replace("##CONDITION##", conditionText.ToString()));
                 stream.Write("\n");
                 // remove
                 stream.Write("""
-                                    public int removeEqual(####PARAMS####) {
-                        return getBaseMapper().delete(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
+                                    public int removeEqual(##PARAMS##) {
+                        return getBaseMapper().delete(new LambdaQueryWrapper<##CLASSNAME##>()##CONDITION##);
                     }
-                    """.Replace("####PARAMS####", functionParams.ToString())
-                    .Replace("####CLASSNAME####", className)
-                    .Replace("####CONDITION####", conditionText.ToString()));
+                    """.Replace("##PARAMS##", functionParams.ToString())
+                    .Replace("##CLASSNAME##", className)
+                    .Replace("##CONDITION##", conditionText.ToString()));
                 stream.Write("\n");
                 // listEqual
                 stream.Write("""
-                                    public List<####CLASSNAME####> listEqual(####PARAMS####) {
-                        return getBaseMapper().selectList(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
+                                    public List<##CLASSNAME##> listEqual(##PARAMS##) {
+                        return getBaseMapper().selectList(new LambdaQueryWrapper<##CLASSNAME##>()##CONDITION##);
                     }
-                    """.Replace("####PARAMS####", functionParams.ToString())
-                    .Replace("####CLASSNAME####", className)
-                    .Replace("####CONDITION####", conditionText.ToString()));
+                    """.Replace("##PARAMS##", functionParams.ToString())
+                    .Replace("##CLASSNAME##", className)
+                    .Replace("##CONDITION##", conditionText.ToString()));
                 stream.Write("\n");
                 // getCountEqual
                 stream.Write("""
-                                    public Long getCountEqual(####PARAMS####) {
-                        return getBaseMapper().selectCount(new LambdaQueryWrapper<####CLASSNAME####>()####CONDITION####);
+                                    public Long getCountEqual(##PARAMS##) {
+                        return getBaseMapper().selectCount(new LambdaQueryWrapper<##CLASSNAME##>()##CONDITION##);
                     }
-                    """.Replace("####PARAMS####", functionParams.ToString())
-                    .Replace("####CLASSNAME####", className)
-                    .Replace("####CONDITION####", conditionText.ToString()));
+                    """.Replace("##PARAMS##", functionParams.ToString())
+                    .Replace("##CLASSNAME##", className)
+                    .Replace("##CONDITION##", conditionText.ToString()));
             }
             // ==============================================
             //          生成创建lambda查询对象方法
             // ==============================================
             stream.Write("""
 
-                public LambdaQueryWrapper<####CLASS_NAME####> lambda(){
-                    return new LambdaQueryWrapper<####CLASS_NAME####>();
+                public LambdaQueryWrapper<##CLASS_NAME##> lambda(){
+                    return new LambdaQueryWrapper<##CLASS_NAME##>();
                 }
-                """.Replace("####CLASS_NAME####", className));
+                """.Replace("##CLASS_NAME##", className));
             // ==============================================
             //          生成创建page查询对象方法
             // ==============================================
             stream.Write("""
 
-                public IPage<####CLASS_NAME####> page(Integer page, Integer pageSize, LambdaQueryWrapper<####CLASS_NAME####> queryWrapper){
+                public IPage<##CLASS_NAME##> page(Integer page, Integer pageSize, LambdaQueryWrapper<##CLASS_NAME##> queryWrapper){
                     if(page==null || page<0){
                         throw new RuntimeException("分页页码page格式不正确。");
                     }
@@ -398,10 +398,10 @@ namespace SpringEntityGenerator.generator
                     return page(new Page<>(page,pageSize),queryWrapper);
                 }
 
-                """.Replace("####CLASS_NAME####", className));
+                """.Replace("##CLASS_NAME##", className));
             stream.Write("""
 
-                public IPage<####CLASS_NAME####> page(Integer page, Integer pageSize){
+                public IPage<##CLASS_NAME##> page(Integer page, Integer pageSize){
                     if(page==null || page<0){
                         throw new RuntimeException("分页页码page格式不正确。");
                     }
@@ -411,28 +411,28 @@ namespace SpringEntityGenerator.generator
                     return page(new Page<>(page,pageSize));
                 }
 
-                """.Replace("####CLASS_NAME####", className));
+                """.Replace("##CLASS_NAME##", className));
             // ==============================================
             //          生成创建operatoe查询对象方法
             // ==============================================
             stream.Write("""
 
-                            public ####CLASS_NAME####Operator operator(){
-                    return new ####CLASS_NAME####Operator(getBaseMapper());
+                            public ##CLASS_NAME##Operator operator(){
+                    return new ##CLASS_NAME##Operator(getBaseMapper());
                 }
 
-                public static class ####CLASS_NAME####Operator{
+                public static class ##CLASS_NAME##Operator{
 
-                    private final LambdaQueryWrapper<####CLASS_NAME####> queryWrapper=new LambdaQueryWrapper<>();
+                    private final LambdaQueryWrapper<##CLASS_NAME##> queryWrapper=new LambdaQueryWrapper<>();
 
-                    private final ####CLASS_NAME####Mapper baseMapper;
+                    private final ##CLASS_NAME##Mapper baseMapper;
 
-                    public ####CLASS_NAME####Operator(####CLASS_NAME####Mapper baseMapper) {
+                    public ##CLASS_NAME##Operator(##CLASS_NAME##Mapper baseMapper) {
                         this.baseMapper = baseMapper;
                     }
 
                     @SafeVarargs
-                    public final ####CLASS_NAME####Operator onlyColumn(SFunction<Menu, ?>... columns){
+                    public final ##CLASS_NAME##Operator onlyColumn(SFunction<Menu, ?>... columns){
                         queryWrapper.select(columns);
                         return this;
                     }
@@ -440,85 +440,90 @@ namespace SpringEntityGenerator.generator
                     /**
                      * 在末尾拼接SQL语句
                      */
-                    public ####CLASS_NAME####Operator lastSql(String sql){
+                    public ##CLASS_NAME##Operator lastSql(String sql){
                         queryWrapper.last(sql);
                         return this;
                     }
 
-                    public ####CLASS_NAME####Operator and(Consumer<LambdaQueryWrapper<####CLASS_NAME####>> consumer){
+                    public ##CLASS_NAME##Operator and(Consumer<LambdaQueryWrapper<##CLASS_NAME##>> consumer){
                         queryWrapper.and(consumer);
                         return this;
                     }
 
-                    public ####CLASS_NAME####Operator or(Consumer<LambdaQueryWrapper<####CLASS_NAME####>> consumer){
+                    public ##CLASS_NAME##Operator or(Consumer<LambdaQueryWrapper<##CLASS_NAME##>> consumer){
                         queryWrapper.or(consumer);
                         return this;
                     }
 
-                    public ####CLASS_NAME####Operator notNull(SFunction<####CLASS_NAME####,?> function){
+                    public ##CLASS_NAME##Operator notNull(SFunction<##CLASS_NAME##,?> function){
                         queryWrapper.isNotNull(function);
                         return this;
                     }
 
-                    public ####CLASS_NAME####Operator eq(SFunction<####CLASS_NAME####,?> function,Object value){
+                    public ##CLASS_NAME##Operator isNull(SFunction<##CLASS_NAME##,?> function){
+                        queryWrapper.isNull(function);
+                        return this;
+                    }
+
+                    public ##CLASS_NAME##Operator eq(SFunction<##CLASS_NAME##,?> function,Object value){
                         queryWrapper.eq(function,value);
                         return this;
                     }
 
-                    public ####CLASS_NAME####Operator ne(SFunction<####CLASS_NAME####,?> function,Object value){
+                    public ##CLASS_NAME##Operator ne(SFunction<##CLASS_NAME##,?> function,Object value){
                         queryWrapper.ne(function,value);
                         return this;
                     }
 
-                    public ####CLASS_NAME####Operator le(SFunction<####CLASS_NAME####,?> function,Object value){
+                    public ##CLASS_NAME##Operator le(SFunction<##CLASS_NAME##,?> function,Object value){
                         queryWrapper.le(function,value);
                         return this;
                     }
 
-                    public ####CLASS_NAME####Operator lt(SFunction<####CLASS_NAME####,?> function,Object value){
+                    public ##CLASS_NAME##Operator lt(SFunction<##CLASS_NAME##,?> function,Object value){
                         queryWrapper.lt(function,value);
                         return this;
                     }
 
-                    public ####CLASS_NAME####Operator ge(SFunction<####CLASS_NAME####,?> function,Object value){
+                    public ##CLASS_NAME##Operator ge(SFunction<##CLASS_NAME##,?> function,Object value){
                         queryWrapper.ge(function,value);
                         return this;
                     }
 
-                    public ####CLASS_NAME####Operator gt(SFunction<####CLASS_NAME####,?> function,Object value){
+                    public ##CLASS_NAME##Operator gt(SFunction<##CLASS_NAME##,?> function,Object value){
                         queryWrapper.gt(function,value);
                         return this;
                     }
 
-                    public ####CLASS_NAME####Operator like(SFunction<####CLASS_NAME####,?> function,Object value){
+                    public ##CLASS_NAME##Operator like(SFunction<##CLASS_NAME##,?> function,Object value){
                         queryWrapper.like(function,value);
                         return this;
                     }
 
-                    public ####CLASS_NAME####Operator notLike(SFunction<####CLASS_NAME####,?> function,Object value){
+                    public ##CLASS_NAME##Operator notLike(SFunction<##CLASS_NAME##,?> function,Object value){
                         queryWrapper.notLike(function,value);
                         return this;
                     }
 
-                    public ####CLASS_NAME####Operator orderByAsc(SFunction<####CLASS_NAME####,?> function){
+                    public ##CLASS_NAME##Operator orderByAsc(SFunction<##CLASS_NAME##,?> function){
                         queryWrapper.orderByAsc(function);
                         return this;
                     }
 
-                    public ####CLASS_NAME####Operator orderByDesc(SFunction<####CLASS_NAME####,?> function){
+                    public ##CLASS_NAME##Operator orderByDesc(SFunction<##CLASS_NAME##,?> function){
                         queryWrapper.orderByDesc(function);
                         return this;
                     }
 
-                    public ####CLASS_NAME#### selectOne(){
+                    public ##CLASS_NAME## selectOne(){
                         return baseMapper.selectOne(queryWrapper);
                     }
 
-                    public List<####CLASS_NAME####> selectList(){
+                    public List<##CLASS_NAME##> selectList(){
                         return baseMapper.selectList(queryWrapper);
                     }
 
-                    public ####CLASS_NAME#### selectOnlyFirst(){
+                    public ##CLASS_NAME## selectOnlyFirst(){
                         return baseMapper.selectOne(queryWrapper.last("LIMIT 1"));
                     }
 
@@ -526,7 +531,7 @@ namespace SpringEntityGenerator.generator
                         return baseMapper.selectCount(queryWrapper);
                     }
 
-                    public IPage<####CLASS_NAME####> selectPage(Integer page, Integer pageSize) {
+                    public IPage<##CLASS_NAME##> selectPage(Integer page, Integer pageSize) {
                         if (page == null || page < 0) {
                             throw new RuntimeException("分页页码page格式不正确。");
                         }
@@ -538,7 +543,7 @@ namespace SpringEntityGenerator.generator
 
                 }
 
-                """.Replace("####CLASS_NAME####", className));
+                """.Replace("##CLASS_NAME##", className));
             stream.Write("}");
             stream.Close();
         }

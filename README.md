@@ -1,12 +1,16 @@
 # Spring Entity Generator
 
-一个能让你挤出更多时间摸鱼的工具。
+``Spring Boot``和``Mybatis Plus``专用的数据生成器。
 
-这个工具能够为你生成``数据库表``，``Controller``，``Service``，``Mapper``，自动创建``增删改查``方法接口，但是前提是需要依赖``MyBatis Plus``。
+这个工具能根据你配置的数据库表结构，直接在数据库中创建相应的``表结构``，在``Spring Boot``项目代码中生成可以直接使用的``ControllerTemplate``，``ServiceTemplate``，``Mapper``，自动创建``增删改查``方法接口。
 
 接口生成默认全部使用的``Post``。可以在``\generator``目录中找到对应的生成器，进行修改即可。
 
 ## 日志
+
+[2024年1月5日]
+
+1、优化了每个``ServiceTemplate``生成的``Operator``对象。
 
 [2024年1月3日]
 
