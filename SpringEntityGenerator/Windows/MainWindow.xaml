@@ -1,0 +1,99 @@
+﻿<Window x:Class="SpringEntityGenerator.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SpringEntityGenerator"
+        xmlns:model="clr-namespace:SpringEntityGenerator.Models"
+        mc:Ignorable="d"
+        Title="数据结构模板生成" Closing="Window_Closing" MinHeight="760" Height="841" Width="1300" SizeChanged="MainWindow_OnSizeChanged" Initialized="MainWindow_OnInitialized" Icon="/Windows/logo.png">
+    <Window.Resources>
+        <ObjectDataProvider x:Key="ColumnType" ObjectType="{x:Type model:ColumnTypes}" MethodName="GetValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type Type="model:ColumnTypes"></x:Type>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="IndexTypes" ObjectType="{x:Type model:IndexTypes}" MethodName="GetValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type Type="model:IndexTypes"></x:Type>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+    <DockPanel Name="ProjectConfigPanel">
+        <DockPanel.DataContext>
+            <model:Project></model:Project>
+        </DockPanel.DataContext>
+        <Menu DockPanel.Dock="Top" >
+            <MenuItem Header="表结构" Height="30">
+                <MenuItem Header="新建" Click="MenuItemNew_Click" InputGestureText="Ctrl+N"></MenuItem>
+                <MenuItem Header="保存" Click="MenuItemSave_Click" InputGestureText="Ctrl+S"></MenuItem>
+                <Separator></Separator>
+                <MenuItem Header="重新加载" Name="MenuItemReload" Click="MenuItemReload_Click" InputGestureText="Ctrl+O"></MenuItem>
+                <Separator></Separator>
+                <MenuItem Header="项目设置" InputGestureText="Ctrl+P" Name="MenuItemEditProjectSetting" Click="MenuItemEditProjectSetting_Click"></MenuItem>
+                <Separator></Separator>
+                <MenuItem Header="退出" Name="MenuItemExit" Click="MenuItemExit_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="生成器" Height="25">
+                <MenuItem Header="生成代码" Name="MenuItemGenerator" Click="MenuItemGenerator_Click" InputGestureText="F8"></MenuItem>
+                <Separator></Separator>
+                <MenuItem Header="生成选项">
+                    <MenuItem Name="MenuItemSettingMySql" Header="MySQL 数据库" IsCheckable="True" IsChecked="True"/>
+                    <MenuItem Name="MenuItemSettingController" Header="Java Controller" IsCheckable="True" IsChecked="True"/>
+                    <MenuItem Name="MenuItemSettingEntity" Header="Java Entity" IsCheckable="True" IsChecked="True"/>
+                    <MenuItem Name="MenuItemSettingMapper" Header="Java Mapper" IsCheckable="True" IsChecked="True"/>
+                    <MenuItem Name="MenuItemSettingService" Header="Java Service" IsCheckable="True" IsChecked="True"/>
+                    <MenuItem Name="MenuItemSettingDocument" Header="数据库字典" IsCheckable="True" IsChecked="True"/>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem Content="工作状态："/>
+            <StatusBarItem Name="StatusItemMessage" Content="就绪" />
+            <StatusBarItem Content="最后一次工作时间："/>
+            <StatusBarItem Name="StatusItemDate" Content="未知" />
+        </StatusBar>
+        <DockPanel>
+            <Grid Width="150" Margin="10,10,0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Label Content="数据库表（25）" Grid.Row="0"></Label>
+                <ListBox x:Name="ListBoxTable" Grid.Row="1" ItemsSource="{Binding TableNameFiles}" MouseDoubleClick="ListBoxTable_MouseDoubleClick">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="MinHeight" Value="30"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
+            </Grid>
+            <Grid Margin="10,10,10,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Grid.Row="0">
+                    <Label Content="名称："></Label>
+                    <TextBox  Width="150" Text="{Binding Path=Table.Name}" VerticalContentAlignment="Center"></TextBox>
+                    <Label Content="中文名称：" Margin="10,0,0,0"></Label>
+                    <TextBox Width="150" VerticalContentAlignment="Center" Text="{Binding Path=Table.CnName}"></TextBox>
+                    <Label Content="注释：" Margin="10,0,0,0"></Label>
+                    <TextBox VerticalContentAlignment="Center" Text="{Binding Table.Comment}" Width="200"/>
+                    <Button Content="删除表结构" Margin="100,0,0,0" Width="100" Name="ButtonDeleteTable" Click="ButtonDeleteTable_Click"></Button>
+                </StackPanel>
+                <DataGrid Name="DataGridColumn" Grid.Row="1" RowHeaderWidth="0"  CanUserAddRows="True" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto"  ColumnWidth="*" ItemsSource="{Binding Table.Columns}" GridLinesVisibility="None"  CanUserSortColumns="False"  >
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="HorizontalContentAlignment" Value="Center">
+                            </Setter>
+                            <Setter Property="MinHeight" Value="35"></Setter>
+                            <Setter Property="BorderThickness" Value="0"></Setter>
+                            <Setter Property="BorderBrush" Value="Transparent"></Setter>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+                </DataGrid>
+            </Grid>
+        </DockPanel>
+    </DockPanel>
+</Window>

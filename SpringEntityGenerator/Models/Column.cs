@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpringEntityGenerator.Model
+namespace SpringEntityGenerator.Models
 {
 
     /// <summary>

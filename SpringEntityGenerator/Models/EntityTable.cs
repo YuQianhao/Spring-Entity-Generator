@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpringEntityGenerator.Model
+namespace SpringEntityGenerator.Models
 {
     /// <summary>
     /// 数据库表
@@ -28,16 +28,6 @@ namespace SpringEntityGenerator.Model
         /// 说明，默认使用中文名
         /// </summary>
         public string Comment { get; set; } = "";
-
-        /// <summary>
-        /// 表结构中通用的前缀，这个前缀会增加到表名和字段名中。可空
-        /// </summary>
-        public string Prefix { get; set; } = "";
-
-        /// <summary>
-        /// 表名和字段名是否大写
-        /// </summary>
-        public bool Uppercase { get; set; } = true;
 
         private List<Column> _columns = new(0);
 

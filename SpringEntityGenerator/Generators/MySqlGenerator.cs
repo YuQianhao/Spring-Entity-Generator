@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
-using SpringEntityGenerator.Model;
+using SpringEntityGenerator.Models;
 
-namespace SpringEntityGenerator.generator
+namespace SpringEntityGenerator.Generators
 {
     /// <summary>
     /// MySql生成器
@@ -31,8 +31,8 @@ namespace SpringEntityGenerator.generator
                 throw new Exception("项目对象引用是空的。");
             }
             // 表名
-            var tableName = project.Table.Prefix + project.Table.Name;
-            if (project.Table.Uppercase)
+            var tableName = project.Prefix + project.Table.Name;
+            if (project.Uppercase)
             {
                 tableName = tableName.ToUpper();
             }
@@ -55,8 +55,8 @@ namespace SpringEntityGenerator.generator
             foreach (var column in project.Table.Columns)
             {
                 // 字段名格式化
-                var columnName = project.Table.Prefix + column.Name;
-                if (project.Table.Uppercase)
+                var columnName = project.Prefix + column.Name;
+                if (project.Uppercase)
                 {
                     columnName = columnName.ToUpper();
                 }

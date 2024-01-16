@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NPOI.XSSF.UserModel;
-using SpringEntityGenerator.Model;
+using SpringEntityGenerator.Models;
 
-namespace SpringEntityGenerator.generator
+namespace SpringEntityGenerator.Generators
 {
     public class DocumentGenerator : AbsEntityGenerator
     {

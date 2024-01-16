@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SpringEntityGenerator.Model;
+using SpringEntityGenerator.Models;
 
-namespace SpringEntityGenerator.generator
+namespace SpringEntityGenerator.Generators
 {
     /// <summary>
     /// 生成器接口

@@ -4,17 +4,17 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SpringEntityGenerator.Model;
+using SpringEntityGenerator.Models;
 
-namespace SpringEntityGenerator.generator
+namespace SpringEntityGenerator.Generators
 {
     public class JavaEntityGenerator : AbsEntityGenerator
     {
         public override void Generator(Project project)
         {
             // 表名
-            var tableName = project.Table.Prefix + project.Table.Name;
-            if (project.Table.Uppercase)
+            var tableName = project.Prefix + project.Table.Name;
+            if (project.Uppercase)
             {
                 tableName = tableName.ToUpper();
             }
@@ -64,8 +64,8 @@ namespace SpringEntityGenerator.generator
             foreach (var field in project.Table.Columns)
             {
                 // 字段在数据库中的名称
-                var fieldFormatName = project.Table.Prefix + field.Name;
-                if (project.Table.Uppercase)
+                var fieldFormatName = project.Prefix + field.Name;
+                if (project.Uppercase)
                 {
                     fieldFormatName = fieldFormatName.ToUpper();
                     // 写入注释

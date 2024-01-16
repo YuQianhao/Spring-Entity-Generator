@@ -1,0 +1,148 @@
+﻿<Window x:Class="SpringEntityGenerator.Windows.ProjectWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:SpringEntityGenerator.Models" 
+        mc:Ignorable="d"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Closing="Window_Closing"
+        Title="项目设置" Height="700" Width="550" Icon="/Windows/logo.png">
+    <Window.Resources>
+        <models:Project x:Key="Project"></models:Project>
+    </Window.Resources>
+    <StackPanel Margin="10" DataContext="{StaticResource Project}" Name="MainPanel">
+        <GroupBox Header="项目设置" Padding="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="75"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="100"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Content="项目名称：" Margin="0,10,0,0"></Label>
+                <TextBox x:Name="InputProjectName" Text="{Binding Name, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" Margin="0,10,0,0" VerticalContentAlignment="Center"></TextBox>
+                <Label Grid.Row="1" Grid.Column="0" Content="项目路径：" Margin="0,10,0,0"></Label>
+                <Label Name="LabelProjectPath" Grid.Row="1" Content="{Binding Path,Mode=TwoWay}" Grid.Column="1" Margin="0,10,0,0"></Label>
+                <Button Grid.Row="1" Content="选择路径" Grid.Column="2" Margin="10,10,0,0" Name="ButtonSelectPath" Click="ButtonSelectPath_Click"></Button>
+                <Label Grid.Row="2" Grid.Column="0" Content="配置路径：" Margin="0,10,0,0"></Label>
+                <Label Grid.Row="2" Content="{Binding SrcPath,Mode=TwoWay}" Grid.Column="1" Margin="0,10,0,0"></Label>
+                <Label Grid.Row="3" Grid.Column="0" Content="字典路径：" Margin="0,10,0,0"></Label>
+                <Label Grid.Row="3" Content="{Binding DocumentPath,Mode=TwoWay}" Grid.Column="1" Margin="0,10,0,0"></Label>
+                <Label Grid.Row="4" Grid.Column="0" Content="项目包名：" Margin="0,10,0,0"></Label>
+                <TextBox Grid.Row="4" Grid.Column="1" Margin="0,10,0,0" Text="{Binding PackageName,Mode=TwoWay}" VerticalContentAlignment="Center"></TextBox>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="MySql设置" Margin="0,10,0,0" Padding="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0">
+                    <Label Content="Host：" Width="75"></Label>
+                    <TextBox HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Width="Auto"></TextBox>
+                </StackPanel>
+                <Grid Grid.Row="0" Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Host：" Grid.Column="0"></Label>
+                    <TextBox VerticalContentAlignment="Center" Text="{Binding MySql.Host,Mode=TwoWay}" Grid.Column="1"></TextBox>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="1" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="端口号：" Grid.Column="0"></Label>
+                    <TextBox VerticalContentAlignment="Center" Text="{Binding MySql.Port,Mode=TwoWay}" Grid.Column="1"></TextBox>
+                </Grid>
+                <Grid Grid.Row="1" Grid.Column="0" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="用户：" Grid.Column="0"></Label>
+                    <TextBox VerticalContentAlignment="Center" Text="{Binding MySql.User,Mode=TwoWay}" Grid.Column="1"></TextBox>
+                </Grid>
+                <Grid Grid.Row="1" Grid.Column="1" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="密码：" Grid.Column="0"></Label>
+                    <TextBox VerticalContentAlignment="Center" Text="{Binding MySql.Password,Mode=TwoWay}" Grid.Column="1"></TextBox>
+                </Grid>
+                <Grid Grid.Row="2" Grid.Column="0" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="数据库：" Grid.Column="0"></Label>
+                    <TextBox VerticalContentAlignment="Center" Text="{Binding MySql.Databases,Mode=TwoWay}" Grid.Column="1"></TextBox>
+                </Grid>
+                <Grid Grid.Row="2" Grid.Column="1" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="" Grid.Column="0"></Label>
+                    <Button Content="测试数据库连接" Grid.Column="1" Name="ButtonTestDataBase" Click="ButtonTestDataBase_Click"></Button>
+                </Grid>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="代码生成设置" Margin="0,10,0,0" Padding="10">
+            <StackPanel>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="75"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0" Content="数据库字段名大写"></Label>
+                    <CheckBox Grid.Row="0" Grid.Column="1" Margin="0,5,0,0" IsChecked="{Binding Uppercase,Mode=TwoWay}"></CheckBox>
+                    <Label Grid.Row="1" Grid.Column="0" Content="在生成代码时，备份旧的代码" Margin="0,10,0,0"></Label>
+                    <CheckBox Grid.Row="1" Grid.Column="1" Margin="0,15,0,0" IsChecked="{Binding AutoBackup,Mode=TwoWay}"></CheckBox>
+                </Grid>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="100"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="分页页码字段：" Grid.Row="0" Grid.Column="0" Margin="0,10,0,0"></Label>
+                    <TextBox Grid.Row="0" Grid.Column="1" Margin="0,10,0,0" Text="{Binding PageFieldName,Mode=TwoWay}"></TextBox>
+                    <Label Content="数据长度字段：" Grid.Row="0" Grid.Column="2" Margin="0,10,0,0"></Label>
+                    <TextBox Grid.Row="0" Grid.Column="3" Margin="0,10,0,0" Text="{Binding PageSizeFieldName,Mode=TwoWay}"></TextBox>
+                    <Label Content="数据库前缀：" Grid.Row="1" Grid.Column="0" Margin="0,10,0,0"></Label>
+                    <TextBox Grid.Row="1" Grid.Column="1" Margin="0,10,0,0" Text="{Binding Prefix,Mode=TwoWay}"></TextBox>
+                </Grid>
+            </StackPanel>
+        </GroupBox>
+        <StackPanel Orientation="Horizontal" Margin="0,20,0,20" HorizontalAlignment="Center">
+            <Button Content="保存项目" Width="150" Height="40" Name="ButtonSave" Click="ButtonSave_Click"></Button>
+        </StackPanel>
+    </StackPanel>
+</Window>

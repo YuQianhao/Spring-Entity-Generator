@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SpringEntityGenerator.Model;
+using SpringEntityGenerator.Models;
 
-namespace SpringEntityGenerator.generator
+namespace SpringEntityGenerator.Generators
 {
     public class JavaControllerGenerator : AbsEntityGenerator
     {
