@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:SpringEntityGenerator"
         xmlns:model="clr-namespace:SpringEntityGenerator.Models"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="数据结构模板生成" Closing="Window_Closing" MinHeight="760" Height="841" Width="1300" SizeChanged="MainWindow_OnSizeChanged" Initialized="MainWindow_OnInitialized" Icon="/Windows/logo.png">
     <Window.Resources>
         <ObjectDataProvider x:Key="ColumnType" ObjectType="{x:Type model:ColumnTypes}" MethodName="GetValues">
@@ -59,7 +60,7 @@
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <Label Content="数据库表（25）" Grid.Row="0"></Label>
+                <Label Content="数据库表" Grid.Row="0"></Label>
                 <ListBox x:Name="ListBoxTable" Grid.Row="1" ItemsSource="{Binding TableNameFiles}" MouseDoubleClick="ListBoxTable_MouseDoubleClick">
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
