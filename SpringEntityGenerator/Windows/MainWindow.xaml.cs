@@ -359,7 +359,10 @@ namespace SpringEntityGenerator.Windows
                 if (result == MessageBoxResult.Yes)
                 {
                     // 保存
-                    SaveCurrent();
+                    if(!SaveCurrent())
+                    {
+                        return;
+                    }
                 }
                 // 重新加载表结构
                 ReloadConfigs();
