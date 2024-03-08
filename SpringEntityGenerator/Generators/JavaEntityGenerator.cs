@@ -108,7 +108,13 @@ namespace SpringEntityGenerator.Generators
             stream.Write("""
 
                 /**
-                 * 从另一个对象中复制相同字段的值
+                 * 从其他对象中复制可用的字段值给目标对象
+                 * <p>假设{@code targetObject}对象中拥有{@code id,name,age}三个字段，
+                 *                          而{@code object}对象中拥有{@code id,age}两个字段，并且数据类型一致，这个方法会将{@code object}的{@code id,age}字段的值
+                 *                          复制给{@code targetObject}使用。</p>
+                 * <p>这个方法会将{@code targetObject}对象本身改变，返回的与参数{@code targetObject}引用一致。</p>
+                 * @param targetObject      目标对象
+                 * @param object            其他对象
                  */
                 public static ##CLASS_NAME## copy(##CLASS_NAME## targetObject , Object object) {
                     try {
@@ -134,7 +140,7 @@ namespace SpringEntityGenerator.Generators
 
 
                 /**
-                 * 根据其他对象的相同字段创建一个对象
+                 * 这个方法会调用{@link ##CLASS_NAME###copy(##CLASS_NAME##, Object)}方法，创建一个全新的{@code ##CLASS_NAME##}对象
                  */
                 public static ##CLASS_NAME## create(Object object) {
                     return copy(new ##CLASS_NAME##(),object);
@@ -149,8 +155,10 @@ namespace SpringEntityGenerator.Generators
 
                 private static ##CLASS_NAME##ServiceTemplate _$tp_serviceTemplate;
 
-
-                public static ##CLASS_NAME##ServiceTemplate getServiceTemplate() {
+                /**
+                 * 获取与这个表结构关联的{@link ##CLASS_NAME##ServiceTemplate}的实例对象。
+                 */
+                public static ##CLASS_NAME##ServiceTemplate serviceTemplate() {
                     if (_$tp_serviceTemplate == null) {
                         try {
                             _$tp_serviceTemplate = ##CLASS_NAME##ServiceTemplate.getInstance();
@@ -170,6 +178,7 @@ namespace SpringEntityGenerator.Generators
 
                 /**
                  * 保存当前对象
+                 * <p>如果对象的id是null，将会调用{@link ##CLASS_NAME###insert()}方法，否则将会调用{@link ##CLASS_NAME###update()}方法</p>
                  */
                 public void save() {
                     if (id == null) {
@@ -181,33 +190,34 @@ namespace SpringEntityGenerator.Generators
 
 
                 /**
-                 * 插入当前对象，并更新当前对象的id
+                 * 在数据库中插入当前对象
                  */
                 public void insert() {
                     if (id != null) {
                         throw new RuntimeException("无法对已经拥有主键id的数据执行插入操作。");
                     }
-                    this.id = getServiceTemplate().saveEntity(this).id;
+                    this.id = serviceTemplate().saveEntity(this).id;
                 }
 
                 /**
-                 * 更新当前对象
+                 * 在数据库中更新这个对象
                  */
                 public void update() {
                     if (id == null) {
                         throw new RuntimeException("无法对已经没有主键id的数据执行更新操作。");
                     }
-                    getServiceTemplate().updateById(this);
+                    serviceTemplate().updateById(this);
                 }
 
                 /**
-                 * 获取Operator操作对象
+                 * 获取{@link ##PACKAGE_NAME##.service.template.##CLASS_NAME##ServiceTemplate.##CLASS_NAME##Operator}操作对象实例。
                  */
                 public static ##CLASS_NAME##ServiceTemplate.##CLASS_NAME##Operator operator() {
-                    return new ##CLASS_NAME##ServiceTemplate.##CLASS_NAME##Operator(getServiceTemplate().getBaseMapper());
+                    return new ##CLASS_NAME##ServiceTemplate.##CLASS_NAME##Operator(serviceTemplate().getBaseMapper());
                 }
 
-                """.Replace("##CLASS_NAME##", className));
+                """.Replace("##CLASS_NAME##", className)
+                    .Replace("##PACKAGE_NAME##", project.PackageName));
 
             stream.Write("}");
             stream.Close();
