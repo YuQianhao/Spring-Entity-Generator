@@ -136,7 +136,7 @@ namespace SpringEntityGenerator.Generators
                     }
 
                     // 参与查询的字段
-                    string selecParamsName;
+                    string selectParamsName;
 
                     // 具体的查询业务
                     var selectLogic = new StringBuilder();
@@ -146,12 +146,12 @@ namespace SpringEntityGenerator.Generators
                     {
                         selectClassFields.Append("public " + field.ToJavaType() + " " + field.Name + "Start;\n");
                         selectClassFields.Append("public " + field.ToJavaType() + " " + field.Name + "End;\n");
-                        selecParamsName = $"select.{field.Name}Start,select.{field.Name}End";
+                        selectParamsName = $"select.{field.Name}Start,select.{field.Name}End";
                     }
                     else
                     {
                         selectClassFields.Append("public " + field.ToJavaType() + " " + field.Name + ";\n");
-                        selecParamsName = $"select.{field.Name}";
+                        selectParamsName = $"select.{field.Name}";
                     }
 
                     // 生成查询业务
@@ -198,7 +198,7 @@ namespace SpringEntityGenerator.Generators
                     selectParamsHandleMethod.Replace("##SELECT_LOGIC##", selectLogic.ToString());
 
                     // 查询方法体中调用这个这个Handle方法
-                    selectBody.Append($"\n{selectParamsHandleName}(select,{selecParamsName},query);\n");
+                    selectBody.Append($"\n{selectParamsHandleName}(select,{selectParamsName},query);\n");
                 }
                 if (field.Key || field.SaveParameter)
                 {
@@ -347,7 +347,15 @@ namespace SpringEntityGenerator.Generators
                             if(params.containsKey(field.getName())){
                                 field.setAccessible(true);
                                 try {
-                                    field.set(this,params.get(field.getName()));
+                                    if (field.getType().equals(Date.class) && params.get(field.getName())!=null) {
+                                        if (params.get(field.getName()).getClass().equals(Long.class)) {
+                                            field.set(this, new Date((Long) params.get(field.getName())));
+                                        } else {
+                                            throw new RuntimeException("无法将ResponseBody转换为目标查询参数，字段" + field.getName() + "无法按照预期转换。目标字段类型为java.lang.Date。");
+                                        }
+                                    } else {
+                                        field.set(this, params.get(field.getName()));
+                                    }
                                 } catch (IllegalAccessException e) {
                                     throw new RuntimeException("无法将ResponseBody转换为目标查询参数，字段"+field.getName()+"无法按照预期转换。"+e.getMessage());
                                 }
