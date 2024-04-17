@@ -14,7 +14,8 @@ namespace SpringEntityGenerator.Generators
         public override void Generator(Project project)
         {
             // controller文件的写出路径
-            var filePath = project.Path + "\\src\\main\\java\\" + project.PackageName.Replace(".", "\\") + "\\controller\\template\\";
+            var filePath = project.Path + "\\src\\main\\java\\" + project.PackageName.Replace(".", "\\") +
+                           "\\controller\\template\\";
             // 类名
             var className = $"{project.Table.Name.First().ToString().ToUpper() + project.Table.Name[1..]}";
             // 使用的mapper名称
@@ -27,6 +28,7 @@ namespace SpringEntityGenerator.Generators
                 {
                     File.Move(filePath + mapperName, filePath + $"{ToBackupName(mapperName)}");
                 }
+
                 File.Delete(filePath + mapperName);
             }
 
@@ -79,7 +81,6 @@ namespace SpringEntityGenerator.Generators
 
             foreach (var field in project.Table.Columns)
             {
-
                 // 字段首字母大写的名称
                 var fieldBigName = field.Name.First().ToString().ToUpper() + field.Name[1..];
 
@@ -92,12 +93,13 @@ namespace SpringEntityGenerator.Generators
                 {
                     saveCallCreateBody.Append("null");
                 }
+
                 saveCallCreateBody.Append(",");
                 if (field.Select)
                 {
-
                     // 查询条件Handle方法名称
-                    var selectParamsHandleName = "onHandleSelectParams##FIELD_BIG_NAME##".Replace("##FIELD_BIG_NAME##", fieldBigName);
+                    var selectParamsHandleName =
+                        "onHandleSelectParams##FIELD_BIG_NAME##".Replace("##FIELD_BIG_NAME##", fieldBigName);
 
                     // 先为select方法的查询条件生成Handle方法体
                     if (field.SelectRange)
@@ -105,16 +107,16 @@ namespace SpringEntityGenerator.Generators
                         // 字段范围查询
                         selectParamsHandleMethod.Append("""
 
-                        // 重写这个方法，可以修改查询参数"##FIELD_NAME##"的查询步骤
-                        protected void ##METHOD_NAME##(##CLASS_NAME##_Select select,##FIELD_JAVA_TYPE## ##FIELD_NAME##Start,##FIELD_JAVA_TYPE## ##FIELD_NAME##End,LambdaQueryWrapper<##CLASS_NAME##> query){
-                            ##SELECT_LOGIC##
-                        }
+                            // 重写这个方法，可以修改查询参数"##FIELD_NAME##"的查询步骤
+                            protected void ##METHOD_NAME##(##CLASS_NAME##_Select select,##FIELD_JAVA_TYPE## ##FIELD_NAME##Start,##FIELD_JAVA_TYPE## ##FIELD_NAME##End,LambdaQueryWrapper<##CLASS_NAME##> query){
+                                ##SELECT_LOGIC##
+                            }
 
-                        """.Replace("##FIELD_BIG_NAME##", fieldBigName)
-                        .Replace("##CLASS_NAME##", className)
-                        .Replace("##FIELD_JAVA_TYPE##", field.ToJavaType())
-                        .Replace("##FIELD_NAME##", field.Name)
-                        .Replace("##METHOD_NAME##", selectParamsHandleName)
+                            """.Replace("##FIELD_BIG_NAME##", fieldBigName)
+                            .Replace("##CLASS_NAME##", className)
+                            .Replace("##FIELD_JAVA_TYPE##", field.ToJavaType())
+                            .Replace("##FIELD_NAME##", field.Name)
+                            .Replace("##METHOD_NAME##", selectParamsHandleName)
                         );
                     }
                     else
@@ -122,16 +124,16 @@ namespace SpringEntityGenerator.Generators
                         // 字段非范围查询
                         selectParamsHandleMethod.Append("""
 
-                        // 重写这个方法，可以修改查询参数"##FIELD_NAME##"的查询步骤
-                        protected void ##METHOD_NAME##(##CLASS_NAME##_Select select,##FIELD_JAVA_TYPE## ##FIELD_NAME##,LambdaQueryWrapper<##CLASS_NAME##> query){
-                            ##SELECT_LOGIC##
-                        }
+                            // 重写这个方法，可以修改查询参数"##FIELD_NAME##"的查询步骤
+                            protected void ##METHOD_NAME##(##CLASS_NAME##_Select select,##FIELD_JAVA_TYPE## ##FIELD_NAME##,LambdaQueryWrapper<##CLASS_NAME##> query){
+                                ##SELECT_LOGIC##
+                            }
 
-                        """.Replace("##FIELD_BIG_NAME##", fieldBigName)
-                        .Replace("##CLASS_NAME##", className)
-                        .Replace("##FIELD_JAVA_TYPE##", field.ToJavaType())
-                        .Replace("##FIELD_NAME##", field.Name)
-                        .Replace("##METHOD_NAME##", selectParamsHandleName)
+                            """.Replace("##FIELD_BIG_NAME##", fieldBigName)
+                            .Replace("##CLASS_NAME##", className)
+                            .Replace("##FIELD_JAVA_TYPE##", field.ToJavaType())
+                            .Replace("##FIELD_NAME##", field.Name)
+                            .Replace("##METHOD_NAME##", selectParamsHandleName)
                         );
                     }
 
@@ -155,7 +157,7 @@ namespace SpringEntityGenerator.Generators
                     }
 
                     // 生成查询业务
-                    if (field.SelectEqual)
+                    if (field.SelectEqual || field.SelectTextLike)
                     {
                         if (field.IsTextType())
                         {
@@ -191,7 +193,6 @@ namespace SpringEntityGenerator.Generators
                             selectLogic.Append($"if({field.Name}End!=null){{\n");
                             selectLogic.Append($"query.lt({className}::get{fieldBigName},{field.Name}End);\n}}\n");
                         }
-
                     }
 
                     // 将查询业务替换到查询参数Handle方法中
@@ -200,10 +201,12 @@ namespace SpringEntityGenerator.Generators
                     // 查询方法体中调用这个这个Handle方法
                     selectBody.Append($"\n{selectParamsHandleName}(select,{selectParamsName},query);\n");
                 }
+
                 if (field.Key || field.SaveParameter)
                 {
                     saveClassFields.Append("public " + field.ToJavaType() + " " + field.Name + ";\n");
                 }
+
                 if (field is { Key: false, SaveParameter: true })
                 {
                     if (field.IsTextType())
@@ -258,68 +261,67 @@ namespace SpringEntityGenerator.Generators
                     }
                 }
             }
+
             if (saveCallCreateBody.Length > 0)
             {
                 saveCallCreateBody.Remove(saveCallCreateBody.Length - 1, 1);
             }
 
 
-
-
             stream.Write("""
-                            protected static class ##CLASS_NAME##_OnlyId{
-                    public Integer id;
-                }
-                """.Replace("##CLASS_NAME##", className));
+                                     protected static class ##CLASS_NAME##_OnlyId{
+                             public Integer id;
+                         }
+                         """.Replace("##CLASS_NAME##", className));
 
             // ============================================
             // getEntity方法
             // ============================================
             stream.Write("""
-                            /* 重写这个方法可以处理查询接口查询到的对象，这个返回结果将会直接返回给发起请求的客户端。**/
-                protected Object onHandleGetAfter(##CLASS_NAME##Dynamic object) {
-                    return object;
-                }
+                                     /* 重写这个方法可以处理查询接口查询到的对象，这个返回结果将会直接返回给发起请求的客户端。**/
+                         protected Object onHandleGetAfter(##CLASS_NAME##Dynamic object) {
+                             return object;
+                         }
 
-                @PostMapping("template/getEntity")
-                public Object getEntity(@RequestBody ##CLASS_NAME##_OnlyId onlyId) {
-                    if (onlyId.id == null) {
-                        throw new RuntimeException("要查询的对象'id'格式不正确，id通常为Integer类型的数据，并且不能是空的。");
-                    }
-                    return this.onHandleGetAfter(new ##CLASS_NAME##Dynamic(getById(onlyId.id)));
-                }
-                """.Replace("##CLASS_NAME##", className));
+                         @PostMapping("template/getEntity")
+                         public Object getEntity(@RequestBody ##CLASS_NAME##_OnlyId onlyId) {
+                             if (onlyId.id == null) {
+                                 throw new RuntimeException("要查询的对象'id'格式不正确，id通常为Integer类型的数据，并且不能是空的。");
+                             }
+                             return this.onHandleGetAfter(new ##CLASS_NAME##Dynamic(getById(onlyId.id)));
+                         }
+                         """.Replace("##CLASS_NAME##", className));
 
             // ============================================
             // remove方法
             // ============================================
             stream.Write("""
-                            /* 重写这个方法可以处理remove接口在查询到要删除的对象，这个返回结果将会被传入数据库的删除方法。**/
-                protected ##CLASS_NAME## onHandleRemoveBefore(##CLASS_NAME## object) {
-                    if(object==null){
-                        throw new RuntimeException("要删除的##CN_CLASS_NAME##对象不存在。");
-                    }
-                    return object;
-                }
+                                     /* 重写这个方法可以处理remove接口在查询到要删除的对象，这个返回结果将会被传入数据库的删除方法。**/
+                         protected ##CLASS_NAME## onHandleRemoveBefore(##CLASS_NAME## object) {
+                             if(object==null){
+                                 throw new RuntimeException("要删除的##CN_CLASS_NAME##对象不存在。");
+                             }
+                             return object;
+                         }
 
-                /* 重写这个方法可以处理remove接口在删除之后的处理业务，这个返回结果将会直接返回给发起请求的客户端。**/
-                protected Object onHandleRemoveAfter(##CLASS_NAME## object) {
-                    throw new RuntimeException("没有找到“onHandleRemoveAfter”方法的实现。");
-                }
-                """.Replace("##CLASS_NAME##", className).Replace("##CN_CLASS_NAME##", project.Table.CnName));
+                         /* 重写这个方法可以处理remove接口在删除之后的处理业务，这个返回结果将会直接返回给发起请求的客户端。**/
+                         protected Object onHandleRemoveAfter(##CLASS_NAME## object) {
+                             throw new RuntimeException("没有找到“onHandleRemoveAfter”方法的实现。");
+                         }
+                         """.Replace("##CLASS_NAME##", className).Replace("##CN_CLASS_NAME##", project.Table.CnName));
             stream.Write("""
-                            @Transactional
-                            @PostMapping("template/remove")
-                public Object remove(@RequestBody ##CLASS_NAME##_OnlyId onlyId){
-                    if(onlyId.id==null){
-                        throw new RuntimeException("The object 'id' to be deleted cannot be empty.");
-                    }
-                    var object=getById(onlyId.id);
-                    removeById(this.onHandleRemoveBefore(object).getId());
-                    object.id=null;
-                    return this.onHandleRemoveAfter(object);
-                }
-                """.Replace("##CLASS_NAME##", className));
+                                     @Transactional
+                                     @PostMapping("template/remove")
+                         public Object remove(@RequestBody ##CLASS_NAME##_OnlyId onlyId){
+                             if(onlyId.id==null){
+                                 throw new RuntimeException("The object 'id' to be deleted cannot be empty.");
+                             }
+                             var object=getById(onlyId.id);
+                             removeById(this.onHandleRemoveBefore(object).getId());
+                             object.id=null;
+                             return this.onHandleRemoveAfter(object);
+                         }
+                         """.Replace("##CLASS_NAME##", className));
 
 
             // =============================================
@@ -329,7 +331,8 @@ namespace SpringEntityGenerator.Generators
             // 写入每个参数的Handle方法
             stream.Write(selectParamsHandleMethod);
 
-            selectClassFields.Append($"public Integer {project.PageFieldName};\npublic Integer {project.PageSizeFieldName};\n");
+            selectClassFields.Append(
+                $"public Integer {project.PageFieldName};\npublic Integer {project.PageSizeFieldName};\n");
 
             // 生成Select格式化后的查询参数类
             stream.Write("""
@@ -337,8 +340,8 @@ namespace SpringEntityGenerator.Generators
                 protected static class ##CLASS_NAME##_Select{
                 
                     ##SELECT_CLASS_FIELDS##
-
-
+                
+                
                     public ##CLASS_NAME##_Select(Map<String,Object> params){
                     
                         var selectClass=getClass();
@@ -368,54 +371,60 @@ namespace SpringEntityGenerator.Generators
 
                 """.Replace("##SELECT_CLASS_FIELDS##", selectClassFields.ToString())
                 .Replace("##CLASS_NAME##", className)
-                );
+            );
             stream.Write("""
-                    /* 重写这个方法可以处理select接口在创建完查询条件之后的回调，这个返回结果将会被传入分页查询的方法。**/
-                    protected LambdaQueryWrapper<##CLASS_NAME##> onHandleSelectBefore(##CLASS_NAME##_Select select , Map<String,Object> params , LambdaQueryWrapper<##CLASS_NAME##> queryWrapper){
-                     return queryWrapper;
-                    }
-                    /* 重写这个方法可以处理select接口分页查询之后的结果，这个返回结果将会直接返回给发起请求的客户端。**/
-                    protected Object onHandleSelectAfter(Page<##CLASS_NAME##Dynamic> result){
-                     return result;
-                    }
-                    """.Replace("##CLASS_NAME##", className));
+                         /* 重写这个方法可以处理select接口在创建完查询条件之后的回调，这个返回结果将会被传入分页查询的方法。**/
+                         protected LambdaQueryWrapper<##CLASS_NAME##> onHandleSelectBefore(##CLASS_NAME##_Select select , Map<String,Object> params , LambdaQueryWrapper<##CLASS_NAME##> queryWrapper){
+                          return queryWrapper;
+                         }
+                         /* 重写这个方法可以处理select接口分页查询之后的结果，这个返回结果将会直接返回给发起请求的客户端。**/
+                         protected Object onHandleSelectAfter(Page<##CLASS_NAME##Dynamic> result){
+                          return result;
+                         }
+                         """.Replace("##CLASS_NAME##", className));
 
-            stream.Write("\n@PostMapping(\"template/select\")\n    public Object select(@RequestBody Map<String,Object> params){\n");
+            stream.Write(
+                "\n@PostMapping(\"template/select\")\n    public Object select(@RequestBody Map<String,Object> params){\n");
             stream.Write("""
-                    var select=new ##CLASS_NAME##_Select(params);
-                    if(select.##PAGE_FIELD##==null || select.##PAGE_FIELD##<1){
-                        throw new RuntimeException("字段'##PAGE_FIELD##'的值不能小于1，这个字段是Integer类型，在这里也不能是空的。");
-                    }
-                    if(select.##PAGE_SIZE_FIELD##==null || select.##PAGE_SIZE_FIELD##<1 || select.##PAGE_SIZE_FIELD##>20){
-                        throw new RuntimeException("字段'##PAGE_SIZE_FIELD##'的值不能小于1，并且不能大于20，这个字段是Integer类型，在这里也不能是空的。");
-                    }
-                    var query=new LambdaQueryWrapper<##CLASS_NAME##>();
-                    """.Replace("##CLASS_NAME##", className)
+                var select=new ##CLASS_NAME##_Select(params);
+                if(select.##PAGE_FIELD##==null || select.##PAGE_FIELD##<1){
+                    throw new RuntimeException("字段'##PAGE_FIELD##'的值不能小于1，这个字段是Integer类型，在这里也不能是空的。");
+                }
+                if(select.##PAGE_SIZE_FIELD##==null || select.##PAGE_SIZE_FIELD##<1 || select.##PAGE_SIZE_FIELD##>20){
+                    throw new RuntimeException("字段'##PAGE_SIZE_FIELD##'的值不能小于1，并且不能大于20，这个字段是Integer类型，在这里也不能是空的。");
+                }
+                var query=new LambdaQueryWrapper<##CLASS_NAME##>();
+                """.Replace("##CLASS_NAME##", className)
                 .Replace("##PAGE_FIELD##", project.PageFieldName)
                 .Replace("##PAGE_SIZE_FIELD##", project.PageSizeFieldName));
             stream.Write(selectBody);
             stream.Write("""
-                var result=page(new Page<>(select.page, select.pageSize), this.onHandleSelectBefore(select,params,query));
-                var dynamicResult=new Page<##CLASS_NAME##Dynamic>();
-                dynamicResult.setSize(result.getSize());
-                dynamicResult.setPages(result.getPages());
-                dynamicResult.setCurrent(result.getCurrent());
-                dynamicResult.setTotal(result.getTotal());
-                var dynamicObjects=new ArrayList<##CLASS_NAME##Dynamic>(result.getRecords().size());
-                for (##CLASS_NAME## record : result.getRecords()) {
-                    dynamicObjects.add(new ##CLASS_NAME##Dynamic(record));
-                }
-                dynamicResult.setRecords(dynamicObjects);
-                return onHandleSelectAfter(dynamicResult);
-                }
-                """.Replace("##CLASS_NAME##", className));
+                         var result=page(new Page<>(select.page, select.pageSize), this.onHandleSelectBefore(select,params,query));
+                         var dynamicResult=new Page<##CLASS_NAME##Dynamic>();
+                         dynamicResult.setSize(result.getSize());
+                         dynamicResult.setPages(result.getPages());
+                         dynamicResult.setCurrent(result.getCurrent());
+                         dynamicResult.setTotal(result.getTotal());
+                         var dynamicObjects=new ArrayList<##CLASS_NAME##Dynamic>(result.getRecords().size());
+                         for (##CLASS_NAME## record : result.getRecords()) {
+                             dynamicObjects.add(new ##CLASS_NAME##Dynamic(record));
+                         }
+                         dynamicResult.setRecords(dynamicObjects);
+                         return onHandleSelectAfter(dynamicResult);
+                         }
+                         """.Replace("##CLASS_NAME##", className));
             // =============================================
             // save方法
             // =============================================
-            stream.Write("\nprotected static class ##CLASS_NAME##_Save {\n".Replace("##CLASS_NAME##", className) + saveClassFields + "\npublic void checkLegality(){\n" + saveMethodFieldCheck + "\n}\n}\n");
-            stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之前的回调，这个返回结果将会被传入数据库save方法。**/\nprotected {className} onHandleSaveBefore({className} entity){{\n return entity;\n}}\n");
-            stream.Write($"/* 重写这个方法可以处理save接口在调用数据库save方法之后的回调，这个返回结果将会直接返回给发起请求的客户端。**/\nprotected Object onHandleSaveAfter({className} entity){{\n return entity;\n}}\n");
-            stream.Write("\n@Transactional\n@PostMapping(\"template/save\")\n public Object save(@RequestBody ##CLASS_NAME##_Save save){\n".Replace("##CLASS_NAME##", className));
+            stream.Write("\nprotected static class ##CLASS_NAME##_Save {\n".Replace("##CLASS_NAME##", className) +
+                         saveClassFields + "\npublic void checkLegality(){\n" + saveMethodFieldCheck + "\n}\n}\n");
+            stream.Write(
+                $"/* 重写这个方法可以处理save接口在调用数据库save方法之前的回调，这个返回结果将会被传入数据库save方法。**/\nprotected {className} onHandleSaveBefore({className} entity){{\n return entity;\n}}\n");
+            stream.Write(
+                $"/* 重写这个方法可以处理save接口在调用数据库save方法之后的回调，这个返回结果将会直接返回给发起请求的客户端。**/\nprotected Object onHandleSaveAfter({className} entity){{\n return entity;\n}}\n");
+            stream.Write(
+                "\n@Transactional\n@PostMapping(\"template/save\")\n public Object save(@RequestBody ##CLASS_NAME##_Save save){\n"
+                    .Replace("##CLASS_NAME##", className));
             stream.Write("save.checkLegality();\n");
             stream.Write($"var object=create({saveCallCreateBody});\n");
             stream.Write($"return this.onHandleSaveAfter(saveEntity(this.onHandleSaveBefore(object)));\n");
@@ -435,6 +444,7 @@ namespace SpringEntityGenerator.Generators
                 {
                     continue;
                 }
+
                 // 首字母大写的字段名
                 var uppercaseFieldName = field.Name[..1].ToUpper() + field.Name[1..];
                 // 值检查，值的字段名为##FIELD_NAME##
@@ -442,24 +452,30 @@ namespace SpringEntityGenerator.Generators
                 // 检查是否为null
                 if (!field.AllowNull)
                 {
-                    checkValueText.Append("if(##FIELD_NAME##==null){throw new RuntimeException(\"字段“##FIELD_NAME##”的值不能是空的。\");}\n".Replace("##FIELD_NAME##", field.Name));
+                    checkValueText.Append(
+                        "if(##FIELD_NAME##==null){throw new RuntimeException(\"字段“##FIELD_NAME##”的值不能是空的。\");}\n"
+                            .Replace("##FIELD_NAME##", field.Name));
                 }
+
                 // 检查是否是字符串并且检查字符串允许的长度
                 if (field.IsTextType())
                 {
-                    checkValueText.Append("if(##FIELD_NAME##.length() < ##MIN_LENGTH## || ##FIELD_NAME##.length() > ##MAX_LENGTH##){throw new RuntimeException(\"字段“##FIELD_NAME##”的内容长度格式不正确，内容长度不能小于##MIN_LENGTH##位，不能大于##MAX_LENGTH##位。\");}\n"
-                                              .Replace("##FIELD_NAME##", field.Name)
-                                              .Replace("##MIN_LENGTH##", field.MinLength.ToString())
-                                              .Replace("##MAX_LENGTH##", field.MaxLength.ToString())
-                                          );
+                    checkValueText.Append(
+                        "if(##FIELD_NAME##.length() < ##MIN_LENGTH## || ##FIELD_NAME##.length() > ##MAX_LENGTH##){throw new RuntimeException(\"字段“##FIELD_NAME##”的内容长度格式不正确，内容长度不能小于##MIN_LENGTH##位，不能大于##MAX_LENGTH##位。\");}\n"
+                            .Replace("##FIELD_NAME##", field.Name)
+                            .Replace("##MIN_LENGTH##", field.MinLength.ToString())
+                            .Replace("##MAX_LENGTH##", field.MaxLength.ToString())
+                    );
                 }
+
                 // 检查数字的限制
                 if (field.IsNumberType())
                 {
-                    checkValueText.Append("if(##FIELD_NAME## < ##MIN_VALUE## || ##FIELD_NAME## > ##MAX_VALUE##){throw new RuntimeException(\"字段“##FIELD_NAME##”的值不正确，值不能小于##MIN_VALUE##，不能大于##MAX_VALUE##。\");}\n"
-                                              .Replace("##FIELD_NAME##", field.Name)
-                                              .Replace("##MIN_VALUE##", field.MinValue.ToString(CultureInfo.InvariantCulture))
-                                              .Replace("##MAX_VALUE##", field.MaxValue.ToString(CultureInfo.InvariantCulture))
+                    checkValueText.Append(
+                        "if(##FIELD_NAME## < ##MIN_VALUE## || ##FIELD_NAME## > ##MAX_VALUE##){throw new RuntimeException(\"字段“##FIELD_NAME##”的值不正确，值不能小于##MIN_VALUE##，不能大于##MAX_VALUE##。\");}\n"
+                            .Replace("##FIELD_NAME##", field.Name)
+                            .Replace("##MIN_VALUE##", field.MinValue.ToString(CultureInfo.InvariantCulture))
+                            .Replace("##MAX_VALUE##", field.MaxValue.ToString(CultureInfo.InvariantCulture))
                     );
                 }
 
@@ -467,10 +483,10 @@ namespace SpringEntityGenerator.Generators
                 var scriptText = new StringBuilder();
                 scriptText.Append("""
                     protected static class ##CLASS_NAME##_Set##UPPERCASE_FIELD_NAME##{
-
+                    
                         // 主键id
                         public Integer id;
-
+                    
                         // ##COMMENT##
                         public ##TYPE## ##FIELD_NAME##;
                     }
@@ -512,26 +528,25 @@ namespace SpringEntityGenerator.Generators
             }
 
 
-
             // 创建通过“Save”创建实例函数
             var createWithSave = new StringBuilder();
             createWithSave.Append("""
 
-                    public ##CLASS_NAME## createWithSave(##CLASS_NAME##_Save save)
-                    {
-                        save.checkLegality();
-                        ##CLASS_NAME## resultObject;
-                        var targetObject = create(##CREATE_PARAMS##);
-                        if (save.id != null) {
-                            resultObject = getOneEqualNotNull(##CLASS_NAME##::getId, save.id);
-                            ##CLASS_NAME##.copy(resultObject, targetObject);
-                        } else {
-                            resultObject = targetObject;
-                        }
-                        return resultObject;
+                public ##CLASS_NAME## createWithSave(##CLASS_NAME##_Save save)
+                {
+                    save.checkLegality();
+                    ##CLASS_NAME## resultObject;
+                    var targetObject = create(##CREATE_PARAMS##);
+                    if (save.id != null) {
+                        resultObject = getOneEqualNotNull(##CLASS_NAME##::getId, save.id);
+                        ##CLASS_NAME##.copy(resultObject, targetObject);
+                    } else {
+                        resultObject = targetObject;
                     }
+                    return resultObject;
+                }
 
-                    """
+                """
                 .Replace("##CREATE_PARAMS##", saveCallCreateBody.ToString())
                 .Replace("##CLASS_NAME##", className)
             );
