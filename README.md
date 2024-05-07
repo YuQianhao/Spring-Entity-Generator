@@ -1,5 +1,7 @@
 # Spring Entity Generator
 
+**<font color="red">该项目已停止维护，新项目请移驾至“[YuQianhao/spring-generate: Spring's rapid development tools. (github.com)](https://github.com/YuQianhao/spring-generate)”。</font>**
+
 ``Spring Boot``和``Mybatis Plus``专用的数据生成器。
 
 这个工具能根据你配置的数据库表结构，直接在数据库中创建相应的``表结构``，在``Spring Boot``项目代码中生成可以直接使用的``ControllerTemplate``，``ServiceTemplate``，``Mapper``，自动创建``增删改查``方法接口。
